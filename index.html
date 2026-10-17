@@ -2,13 +2,15 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0d9488">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Carnet step">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Carnet step">
+<meta name="theme-color" content="#7c3aed">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Carnet step · Lycée G. Pompidou</title>
 <style>
 :root{
@@ -282,9 +284,16 @@ header{padding-top:12px}
 .badge{display:inline-block;background:#fef3c7;border-radius:999px;padding:2px 8px;margin:2px 2px;font-weight:700;font-size:13px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .anl,:root:not([data-theme="light"]) .defibox{background:#3a1d12;border-color:#7c2d12}:root:not([data-theme="light"]) .badge{background:#422006}}
 </style>
+
+<style id="appicon-css">.appicon{width:40px;height:40px;border-radius:9px;vertical-align:middle;margin:0 10px 0 0;box-shadow:0 1px 3px rgba(0,0,0,.25);flex:none;display:inline-block;object-fit:cover}
+.appicon.big{width:72px;height:72px;border-radius:16px;margin:0 auto 10px;display:block}
+.appicon.fill{width:100%;height:100%;margin:0;border-radius:inherit;box-shadow:none;display:block}
+.appicon.logoimg{width:46px;height:46px;margin:0;border-radius:12px}
+.test-banner{background:#facc15;color:#111;font:700 15px/1.3 system-ui,sans-serif;text-align:center;padding:8px 12px;position:relative;z-index:99999}
+@media print{.appicon,.test-banner{display:none!important}}</style>
 </head>
 <body>
-<header><button data-go="home" type="button" class="homebtn" aria-label="Accueil">⌂<span class="t"> Accueil</span></button><svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#fff"/><g fill="none" stroke="#0f766e" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="62" width="64" height="14" rx="4" fill="#0f766e" stroke="none"/><circle cx="52" cy="20" r="7" fill="#0f766e" stroke="none"/><path d="M50 30 L46 48 L56 62 M46 48 L36 56 L30 62 M49 34 L62 40 L70 32 M49 34 L36 38"/></g></svg><div class="brand"><b>Carnet step</b><small>CA5 · Seconde · Lycée Georges Pompidou</small></div><span class="sp"></span><button data-act="prof" type="button">Prof</button></header>
+<header><button data-go="home" type="button" class="homebtn" aria-label="Accueil">⌂<span class="t"> Accueil</span></button><img class="appicon logo" src="icon-192.png" alt="" width="40" height="40"><div class="brand"><b>Carnet step</b><small>CA5 · Seconde · Lycée Georges Pompidou</small></div><span class="sp"></span><button data-act="prof" type="button">Prof</button></header>
 <nav id="crumb"></nav>
 <main id="main"></main>
 <div id="modal"><div id="modal-body"></div></div>
