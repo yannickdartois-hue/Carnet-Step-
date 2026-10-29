@@ -207,7 +207,7 @@ document.addEventListener('click',e=>{
   if(a==='presopen'){V.presOpen=true;return keepScroll(render)}
   if(a==='presclose'){V.presOpen=false;return keepScroll(render)}
   if(a==='chgo'){beep(700,60);return chStart()}
-  if(a==='chpause'){const r=CH.run;if(!r)return;r.paused=!r.paused;return render(),chDraw()}
+  if(a==='chpause'){if(!CH.run)return;chPause();return render(),chDraw()}
   if(a==='chstop'){chStop();return render()}
   if(a==='qrall'){const b=curBin();const [L,pl]=catchupPayload(b);if(!L.length)return toast('Tout est déjà envoyé.');markSent(b,L);render();
     return animQr('Rattrapage · '+L.map(s=>s.n).join(', '),esc(b.runners[0].prenom)+' & '+esc(b.runners[1].prenom)+' · '+esc(b.classe)+' · à montrer au prof',pl.length>600?chunkPayload(pl,600):[pl])}

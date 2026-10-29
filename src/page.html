@@ -44,10 +44,12 @@ body[data-cy="T"] .out.hi,body[data-cy="T"] .zs .z4{background:linear-gradient(1
 </style>
 </head>
 <body>
-<header><button data-go="home" type="button" class="homebtn" aria-label="Accueil">⌂<span class="t"> Accueil</span></button><img class="appicon logo" src="icon-192.png" alt="" width="40" height="40"><div class="brand"><b>Carnet step</b><small>CA5 · Seconde · Lycée Georges Pompidou</small></div><span class="sp"></span><button data-act="prof" type="button">Prof</button></header>
+<header><button data-go="home" type="button" class="homebtn" aria-label="Accueil">⌂<span class="t"> Accueil</span></button><img class="appicon logo" src="icon-192.png" alt="" width="40" height="40"><div class="brand"><b>Carnet step</b><small>CA5 · Seconde · Lycée Georges Pompidou</small></div><span class="sp"></span><button type="button" class="baide" onclick="EPSAide.ouvrir()" aria-label="Mode d’emploi" title="Mode d’emploi">?</button><button data-act="prof" type="button">Prof</button></header>
 <nav id="crumb"></nav>
 <main id="main"></main>
 <div id="modal"><div id="modal-body"></div></div>
 <div id="toast" role="status"></div>
 <div id="upd" role="status"></div>
-{{SCRIPTS}}</body></html>
+{{SCRIPTS}}<script src="aide.js"></script>
+<script src="eps-aide.js"></script>
+</body></html>

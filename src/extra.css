@@ -27,3 +27,4 @@
 #demobar button,#demobar a{font:inherit;font-weight:800;color:#1c2128;background:#fff;border:0;border-radius:999px;padding:6px 12px;min-height:36px;text-decoration:none;cursor:pointer;display:inline-flex;align-items:center}
 body:has(#demobar) header{top:52px}body:has(#demobar) .steps{top:122px}
 @media (max-width:560px){#demobar span,#demobar i{display:none}#demobar{font-size:14px;flex-wrap:nowrap;gap:6px}#demobar b{margin-right:auto}#demobar button,#demobar a{min-height:34px;padding:4px 12px}body:has(#demobar) header{top:50px}}
+.baide{width:44px;min-width:44px;padding:0!important;border-radius:50%!important;font-weight:900;font-size:19px}
