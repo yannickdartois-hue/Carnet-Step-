@@ -2,19 +2,16 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-180.png">
-<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6d28d9">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Carnet step">
-<meta name="theme-color" content="#6d28d9">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Carnet step · Lycée G. Pompidou</title>
-<style>
-{{CSS}}</style>
-
+<meta name="apple-mobile-web-app-title" content="Step prof">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Carnet step · Prof</title>
+<link rel="stylesheet" href="style.css">
 <style id="appicon-css">.appicon{width:40px;height:40px;border-radius:9px;vertical-align:middle;margin:0 10px 0 0;box-shadow:0 1px 3px rgba(0,0,0,.25);flex:none;display:inline-block;object-fit:cover}
 .appicon.big{width:72px;height:72px;border-radius:16px;margin:0 auto 10px;display:block}
 .appicon.fill{width:100%;height:100%;margin:0;border-radius:inherit;box-shadow:none;display:block}
@@ -22,7 +19,7 @@
 .test-banner{background:#facc15;color:#111;font:700 15px/1.3 system-ui,sans-serif;text-align:center;padding:8px 12px;position:relative;z-index:99999}
 @media print{.appicon,.test-banner{display:none!important}}</style>
 <style>/* Lisibilité terrain : textes à 15 px minimum à l'écran ; tailles d'origine à l'impression. */@media print{:root{--fs-min:0px}}</style>
-<link rel="stylesheet" href="eps-charte-v1.css">
+<link rel="stylesheet" href="../eps-charte-v1.css">
 <style>/* Charte v1 — Step : base commune et couleur de l'activité */
 :root{--act:#6d28d9;--act-fonce:#441987;--act-pale:#ede5fa;--act-sombre:#af89ea;--act-pale-sombre:#291e4a}
 :root{--bg:#f3f5f8;--bg2:#eef1f5;--card:#ffffff;--fg:#1c2128;--muted:#5b6470;--line:#dde2e8;--acc:#6d28d9;--acc2:#441987;--acc-fg:#ffffff;--soft:#ede5fa;--sh-hi:0 10px 30px -10px rgba(109,40,217,.4);--font:"Atkinson","Segoe UI",Roboto,system-ui,sans-serif;
@@ -32,6 +29,9 @@ body{background:var(--bg)}
 body[data-cy="T"]{--acc:#6d28d9;--acc2:#441987;--soft:#ede5fa}
 :root[data-theme="dark"] body[data-cy="T"]{--acc:#af89ea;--acc2:#af89ea;--soft:#291e4a}
 :root{--lagoon:#6d28d9;--indigo:#6d28d9;--ink:#1c2128}
+/* boutons, bandeaux et frise : couleur du step (pas de rouge : une couleur par activité) */
+:root{--tartan:#6d28d9;--track:#6d28d9;--track2:#8348df;--track-soft:#ede5fa}
+:root[data-theme="dark"]{--tartan:#af89ea;--track:#af89ea;--track2:#c4a8f0;--track-soft:#291e4a}
 .hero{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='220' viewBox='0 0 600 220'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.16' stroke-width='3'%3E%3Cpath d='M-20 200 C 160 200 220 40 420 40 S 640 40 660 40'/%3E%3Cpath d='M-20 218 C 170 218 230 58 420 58 S 640 58 660 58'/%3E%3Cpath d='M-20 236 C 180 236 240 76 420 76 S 640 76 660 76'/%3E%3Cpath d='M-20 182 C 150 182 210 22 420 22 S 640 22 660 22'/%3E%3C/g%3E%3C/svg%3E") right bottom/auto 120% no-repeat,linear-gradient(135deg,#441987,#6d28d9 55%,#8348df)}
 .out.hi,.zs .z4{background:linear-gradient(135deg,var(--acc2),var(--acc))}
 body[data-cy="T"] .out.hi,body[data-cy="T"] .zs .z4{background:linear-gradient(135deg,#6d28d9,#441987)}
@@ -43,13 +43,31 @@ body[data-cy="T"] .out.hi,body[data-cy="T"] .zs .z4{background:linear-gradient(1
 .seg.big .chip.on,body[data-cy="T"] .seg.big .chip.on{box-shadow:0 6px 16px -8px rgba(109,40,217,.6)}
 </style>
 </head>
-<body>
-<header><button data-go="home" type="button" class="homebtn" aria-label="Accueil">⌂<span class="t"> Accueil</span></button><img class="appicon logo" src="icon-192.png" alt="" width="40" height="40"><div class="brand"><b>Carnet step</b><small>CA5 · Seconde · Lycée Georges Pompidou</small></div><span class="sp"></span><button type="button" class="baide" onclick="EPSAide.ouvrir()" aria-label="Mode d’emploi" title="Mode d’emploi">?</button><button data-act="prof" type="button">Prof</button></header>
-<nav id="crumb"></nav>
+<body class="prof">
+<header>
+ <div class="barre"><img class="appicon logo" src="icon-192.png" alt="" width="40" height="40">
+  <div class="brand"><b>Carnet step · Prof</b><small>Suivi des séances · Seconde</small></div>
+  <button type="button" class="baide" onclick="EPSAide.ouvrir()" aria-label="Mode d’emploi" title="Mode d’emploi">?</button>
+  <div id="classes"></div></div>
+ <nav class="otop" id="onglets"></nav>
+</header>
 <main id="main"></main>
 <div id="modal"><div id="modal-body"></div></div>
 <div id="toast" role="status"></div>
 <div id="upd" role="status"></div>
-{{SCRIPTS}}<script src="aide.js"></script>
-<script src="eps-aide.js"></script>
-</body></html>
+<script src="../donnees.js"></script>
+<script src="../logique.js"></script>
+<script src="../qrcode.js"></script>
+<script src="../jsqr.js"></script>
+<script src="../scan.js"></script>
+<script src="jszip.js"></script>
+<script src="xlsx.js"></script>
+<script src="../vues.js"></script>
+<script src="../chrono.js"></script>
+<script src="prof.js"></script>
+<script src="../demo-commun.js"></script>
+<script src="prof-demo.js"></script>
+<script src="aide.js"></script>
+<script src="../eps-aide.js"></script>
+</body>
+</html>

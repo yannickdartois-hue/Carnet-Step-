@@ -1,13 +1,12 @@
 {
- "name": "Carnet step · Seconde · Lycée Georges Pompidou",
+ "name": "Carnet step · Élève — Pompidou",
  "short_name": "Carnet step",
+ "lang": "fr",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
- "orientation": "any",
- "background_color": "#f3f5f7",
- "theme_color": "#7c3aed",
- "lang": "fr",
+ "background_color": "#f3f5f8",
+ "theme_color": "#6d28d9",
  "icons": [
   {
    "src": "icon-192.png",

@@ -1,7 +1,7 @@
 /* Test du mode démo : classe fictive, données réelles intactes, réinitialisation.
    Lancer depuis la racine du dépôt : node src/tests/e2e.js  (Playwright installé) */
 const path=require('path'),os=require('os'),fs=require('fs');
-const IDX='file://'+path.resolve(__dirname,'../../index.html');
+const IDX='file://'+path.resolve(__dirname,'../../index-old.html');
 const SH=fs.mkdtempSync(path.join(os.tmpdir(),'carnet-step-'))+'/';
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const errs=[];
 const p=await b.newPage({viewport:{width:820,height:1100}});p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});

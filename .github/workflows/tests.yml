@@ -10,15 +10,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: index.html correspond bien aux sources (src/)
+      - name: index-old.html (ancien carnet) correspond bien à ses sources (ancien-carnet/)
         run: |
-          python3 src/build.py
-          git diff --exit-code index.html || (echo "index.html a été modifié à la main : modifier src/ puis lancer python3 src/build.py" && exit 1)
+          python3 ancien-carnet/build.py
+          git diff --exit-code index-old.html || (echo "index-old.html a été modifié à la main : modifier ancien-carnet/ puis lancer python3 ancien-carnet/build.py" && exit 1)
       - name: Installer Playwright
         run: |
           npm install --no-save playwright@1.47.2
           npx playwright install --with-deps chromium
-      - name: Saisie complète S1 à S8, mode prof, restauration
-        run: node src/tests/e2e.js
-      - name: Mode démo
-        run: node src/tests/demo.js
+      - name: Nouvelle appli · prof → tablette → prof (QR, fichiers, copie de secours, code oublié, reprise, anciens carnets)
+        run: |
+          python3 -m http.server 8830 >/dev/null 2>&1 &
+          sleep 1
+          node tests/flux.js
+      - name: Nouvelle appli · démos élève et prof, affichage téléphone
+        run: node tests/demo.js
+      - name: Ancien carnet · saisie S1 à S8, mode prof, restauration
+        run: node ancien-carnet/tests/e2e.js
+      - name: Ancien carnet · mode démo
+        run: node ancien-carnet/tests/demo.js

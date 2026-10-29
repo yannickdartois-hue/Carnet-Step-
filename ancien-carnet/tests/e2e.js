@@ -1,7 +1,7 @@
 /* Test complet du carnet step : saisie S1-S8, calculs, QR, mode prof, restauration, affichage téléphone.
    Lancer depuis la racine du dépôt : node src/tests/e2e.js  (Playwright installé) */
 const path=require('path'),os=require('os'),fs=require('fs');
-const IDX='file://'+path.resolve(__dirname,'../../index.html');
+const IDX='file://'+path.resolve(__dirname,'../../index-old.html');
 const SH=fs.mkdtempSync(path.join(os.tmpdir(),'carnet-step-'))+'/';
 const { chromium } = require('playwright');
 (async()=>{
