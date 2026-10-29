@@ -31,7 +31,7 @@ Une tablette par binôme : les élèves remplissent leur carnet à chaque séanc
 - **Juste Pouls** : avant chaque mesure, l'élève annonce sa FC ; à ± 5 = 3 pts, à ± 10 = 1 pt.
 - **Pile dans la cible** (séances de filière S5 à S7) : milieu de la zone ± 3 = 3 pts, dans la zone = 2 pts, à 5 près = 1 pt.
 - **Défis de coordination** (S2 : Le canon ; S3 : La ronde, L'annonce) : réussi / pas encore, sans points, cochés par le coach dans la séance.
-- **Badges** : Mémoire, Endurant, Devin, Régleur, Coach, Chef d'orchestre (meneur devant sa rangée, 4 fois les 3 blocs sans erreur, S4 à S7), affichés sur la page du binôme et dans « Ma progression ».
+- **Badges** : Mémoire, Endurant, Devin (au moins 6 annonces à ± 5 et au moins la moitié des annonces), Régleur, Coach, Chef d'orchestre (meneur devant sa rangée, 4 fois les 3 blocs sans erreur, S4 à S7), affichés sur la page du binôme et dans « Ma progression ».
 - Score du binôme sur la page du binôme ; classement de la classe dans l'onglet *Défis* du mode prof (il n'entre pas dans la note). S8 : pas d'annonce ni de points.
 
 ## Version démo (pour présenter l'appli)

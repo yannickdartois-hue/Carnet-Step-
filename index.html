@@ -12730,7 +12730,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 });</script>
 <script>/* ===================== CARNET STEP · CA5 · Seconde · cœur commun (élève + prof) ===================== */
 'use strict';
-const APP_VER=1, APP_VERSION='v3 · 29/10/2026', SCHEMA=1, STORE='step2_carnet_v1', PSTORE='step2_prof_v1';
+const APP_VER=1, APP_VERSION='v3.1 · 29/10/2026', SCHEMA=1, STORE='step2_carnet_v1', PSTORE='step2_prof_v1';
 const R=x=>Math.floor(x+0.5);
 const num=v=>{if(v===''||v==null)return null;const n=parseFloat(String(v).replace(',','.'));return isNaN(n)?null:n};
 const fc1=x=>x==null||isNaN(x)?'–':String(R(x*10)/10).replace('.',',');
@@ -12828,11 +12828,12 @@ function scoreSeance(sid,d,run){if(!DEFI_S.includes(sid)||!d||d.st)return {jp:0,
   return {jp,ci,tot:jp+ci}}
 function scoreRun(run){let jp=0,ci=0;DEFI_S.forEach(sid=>{const s=scoreSeance(sid,run.seances&&run.seances[sid],run);jp+=s.jp;ci+=s.ci});return {jp,ci,tot:jp+ci}}
 function pronoErrD(d){if(!d)return null;const p=num(getPath(d,'bl.pr')),f=num(getPath(d,'fl.m.0.fc'));if(p==null||f==null||!f)return null;return Math.abs(p-f)/f*100}
-const BADGES=[['memoire','Mémoire','3 blocs enchaînés seul (S4)'],['endurant','Endurant','12 min sans arrêt (S3)'],['devin','Devin','3 annonces Juste Pouls à ± 5'],['regleur','Régleur','2 séances de filière à 3 mesures sur 4 dans la zone'],['coach','Coach','pronostic à ± 5 % deux fois'],['chef','Chef d’orchestre','4 fois les 3 blocs devant sa rangée, sans erreur (S4 à S7)']];
+const BADGES=[['memoire','Mémoire','3 blocs enchaînés seul (S4)'],['endurant','Endurant','12 min sans arrêt (S3)'],['devin','Devin','au moins 6 annonces Juste Pouls à ± 5, et au moins la moitié de tes annonces'],['regleur','Régleur','2 séances de filière à 3 mesures sur 4 dans la zone'],['coach','Coach','pronostic à ± 5 % deux fois'],['chef','Chef d’orchestre','4 fois les 3 blocs devant sa rangée, sans erreur (S4 à S7)']];
 function badgesOf(run,mate){const se=run.seances||{};const B=[];
   if(getPath(se,'s4.tri')==='1')B.push('memoire');
   const lg=se.s3&&se.s3.lg;if(lg&&lg.some(x=>x&&num(x.fc)!=null)&&num(getPath(se,'s3.lgar'))===0)B.push('endurant');
-  let dv=0;DEFI_S.forEach(sid=>annonces(se[sid]).forEach(([a,f])=>{if(Math.abs(a-f)<=5)dv++}));if(dv>=3)B.push('devin');
+  /* Devin : au moins 6 annonces à ± 5 ET au moins la moitié des annonces (sinon on l'obtient en annonçant au hasard) */
+  let dv=0,na=0;DEFI_S.forEach(sid=>annonces(se[sid]).forEach(([a,f])=>{na++;if(Math.abs(a-f)<=5)dv++}));if(dv>=6&&dv*2>=na)B.push('devin');
   const z=zoneFor(run,filOf(run));let rg=0;['s5','s6','s7','s8'].forEach(sid=>{const M=((se[sid]&&se[sid].fl&&se[sid].fl.m)||[]).map(x=>num(x&&x.fc)).filter(x=>x!=null);if(M.length&&M.filter(x=>inZ(x,z)).length/M.length>=0.75)rg++});if(rg>=2)B.push('regleur');
   if(SESS.some(s=>getPath(se,s.id+'.co.chef')==='1'))B.push('chef');
   if(mate){let c=0;SESS.forEach(s=>{const e=pronoErrD(mate.seances&&mate.seances[s.id]);if(e!=null&&e<=5)c++});if(c>=2)B.push('coach')}
