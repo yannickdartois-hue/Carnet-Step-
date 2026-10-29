@@ -1,0 +1,24 @@
+# Tests automatiques du carnet step, lancés par GitHub à chaque dépôt (onglet Actions).
+# Coche verte = tout fonctionne. Croix rouge = ne pas installer cette version sur les tablettes.
+name: Tests du carnet
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: index.html correspond bien aux sources (src/)
+        run: |
+          python3 src/build.py
+          git diff --exit-code index.html || (echo "index.html a été modifié à la main : modifier src/ puis lancer python3 src/build.py" && exit 1)
+      - name: Installer Playwright
+        run: |
+          npm install --no-save playwright@1.47.2
+          npx playwright install --with-deps chromium
+      - name: Saisie complète S1 à S8, mode prof, restauration
+        run: node src/tests/e2e.js
+      - name: Mode démo
+        run: node src/tests/demo.js

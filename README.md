@@ -54,3 +54,22 @@ Remplacer les fichiers et **changer le numéro de version** dans `sw.js` (`carne
 - v2 (27/10/2026) : défis de coordination S2-S3, badge Chef d'orchestre, colonne « Défis coordination réussis » dans l'export CSV.
 - 25-26/10/2026 : charte v1 (thème clair imposé, couleur step, polices embarquées), cache hors ligne propre à l'appli, ouverture depuis le cache si le réseau dépasse 3 s.
 - v1 (12/10/2026) : première version.
+
+## Modifier l'appli (sources)
+Le dossier `src/` contient les sources ; `index.html` est **fabriqué** à partir d'elles. Ne pas modifier `index.html` à la main.
+| Fichier | Rôle |
+|---|---|
+| `src/core.js` | séances, zones de FC, défis, badges, calculs, format des QR (commun élève + prof) |
+| `src/ui.js` | écrans élève |
+| `src/prof.js` | mode prof, export CSV, mode démo |
+| `src/style.css`, `src/extra.css` | présentation (charte v1 comprise) |
+| `src/page.html` | squelette de la page (en-tête, icônes, charte) |
+| `src/keep.json` | morceaux repris du carnet de demi-fond (chiffrement QR, saisie, graphiques…) |
+| `src/qrgen.js`, `src/jsqr.js` | bibliothèques QR (ne pas modifier) |
+| `src/build.py` | assemble `index.html` |
+| `src/tests/` | tests Playwright (`node src/tests/e2e.js`, `node src/tests/demo.js`) |
+
+1. Modifier un fichier de `src/`.
+2. `python3 src/build.py` (réécrit `index.html`).
+3. Augmenter le numéro de cache dans `sw.js`.
+4. Publier : GitHub lance les tests (onglet *Actions*). Coche verte = la version peut aller sur les tablettes ; croix rouge = ne pas l'installer.
