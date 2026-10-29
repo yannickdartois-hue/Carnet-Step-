@@ -283,6 +283,12 @@ header{padding-top:12px}
 .defibox{background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:8px 12px;margin:10px 0}
 .badge{display:inline-block;background:#fef3c7;border-radius:999px;padding:2px 8px;margin:2px 2px;font-weight:700;font-size:max(13px,var(--fs-min,15px))}
 :root[data-theme="dark"] .anl,:root[data-theme="dark"] .defibox{background:#3a1d12;border-color:#7c2d12}:root[data-theme="dark"] .badge{background:#422006}
+/* mode démo (repris du carnet de demi-fond) */
+#demobar{position:sticky;top:0;z-index:70;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:8px 12px;background:repeating-linear-gradient(135deg,#c2410c 0 14px,#9a3412 14px 28px);color:#fff;font-size:14px}
+#demobar b{background:#1c2128;padding:3px 10px;border-radius:999px;letter-spacing:.06em}#demobar i{font-style:normal}#demobar span{flex:1 1 180px;font-weight:700}
+#demobar button,#demobar a{font:inherit;font-weight:800;color:#1c2128;background:#fff;border:0;border-radius:999px;padding:6px 12px;min-height:36px;text-decoration:none;cursor:pointer;display:inline-flex;align-items:center}
+body:has(#demobar) header{top:52px}body:has(#demobar) .steps{top:122px}
+@media (max-width:560px){#demobar span,#demobar i{display:none}#demobar{font-size:14px;flex-wrap:nowrap;gap:6px}#demobar b{margin-right:auto}#demobar button,#demobar a{min-height:34px;padding:4px 12px}body:has(#demobar) header{top:50px}}
 </style>
 
 <style id="appicon-css">.appicon{width:40px;height:40px;border-radius:9px;vertical-align:middle;margin:0 10px 0 0;box-shadow:0 1px 3px rgba(0,0,0,.25);flex:none;display:inline-block;object-fit:cover}
@@ -12724,7 +12730,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 });</script>
 <script>/* ===================== CARNET STEP · CA5 · Seconde · cœur commun (élève + prof) ===================== */
 'use strict';
-const APP_VER=1, APP_VERSION='v1 · 12/10/2026', SCHEMA=1, STORE='step2_carnet_v1', PSTORE='step2_prof_v1';
+const APP_VER=1, APP_VERSION='v3 · 29/10/2026', SCHEMA=1, STORE='step2_carnet_v1', PSTORE='step2_prof_v1';
 const R=x=>Math.floor(x+0.5);
 const num=v=>{if(v===''||v==null)return null;const n=parseFloat(String(v).replace(',','.'));return isNaN(n)?null:n};
 const fc1=x=>x==null||isNaN(x)?'–':String(R(x*10)/10).replace('.',',');
@@ -12758,20 +12764,27 @@ const SESS=[
  {id:'s1',n:'S1',t:'Sécurité, FC de repos, bloc 1',goal:'je fais le bloc 1 en suivant le prof, et ma 2e FC est plus haute que la 1re.',
   crit:['Pied entier posé, sans bruit','Descend toujours en arrière','Reste sur le temps de la musique'],blocks:['fcr',['bloc',1],['mes','m1','Premier effort, première mesure',[['Effort 1 · 6 min de bloc 1, mains aux hanches, sans saut','basse'],['Effort 2 · 3 min de bloc 1, bras au-dessus des épaules, genou plus haut que la hanche','haute']]]]},
  {id:'s2',n:'S2',t:'Bloc 2 et test des leviers',goal:'je sais dire quel réglage me fait gagner le plus de pulsations.',
-  crit:['Jamais de descente en avant (reverse)','Regard devant, pas sur ses pieds','Ne change qu’un réglage à la fois'],blocks:[['bloc',2],['mes','lv','Test des leviers : 3 × 3 min de bloc 1',[['Série 1 · step sans réhausse, mains aux hanches, aucun saut','version basse'],['Série 2 · + propulsion (genoux et tap up sautés)','+ propulsion'],['Série 3 · + propulsion, 1 réhausse, bras au-dessus des épaules','+ réhausse + bras']]],'zcalc']},
+  crit:['Jamais de descente en avant (reverse)','Regard devant, pas sur ses pieds','Ne change qu’un réglage à la fois'],blocks:[['coord',['canon']],['bloc',2],['mes','lv','Test des leviers : 3 × 3 min de bloc 1',[['Série 1 · step sans réhausse, mains aux hanches, aucun saut','version basse'],['Série 2 · + propulsion (genoux et tap up sautés)','+ propulsion'],['Série 3 · + propulsion, 1 réhausse, bras au-dessus des épaules','+ réhausse + bras']]],'zcalc']},
  {id:'s3',n:'S3',t:'Bloc 3, effort long, Juste Pouls',goal:'je tiens 12 min sans arrêt et j’annonce ma FC à 10 près.',
-  crit:['Back sans saut, réception stable','Effort régulier sur les 12 min','Annonce faite avant de bouger'],blocks:[['bloc',3],['mes','lg','Effort long : 12 min de blocs 1 et 2, version basse',[['FC à 6 min','B'],['FC à 12 min','B']]]]},
+  crit:['Back sans saut, réception stable','Effort régulier sur les 12 min','Annonce faite avant de bouger'],blocks:[['coord',['ronde','annonce']],['bloc',3],['mes','lg','Effort long : 12 min de blocs 1 et 2, version basse',[['FC à 6 min','B'],['FC à 12 min','B']]]]},
  {id:'s4',n:'S4',t:'Les 3 blocs, curseurs, choix de la filière',goal:'au moins 2 mesures sur 3 dans la zone visée, et mon choix est argumenté.',
-  crit:['3 blocs enchaînés sans l’enseignant','Sauts du jumping jack sur la plateforme','Annonce son réglage (H B P A)'],blocks:['tri','cur','vise','essai','choix']},
+  crit:['3 blocs enchaînés sans l’enseignant','Sauts du jumping jack sur la plateforme','Annonce son réglage (H B P A)'],blocks:['tri',['coord',['chef']],'cur','vise','essai','choix']},
  {id:'s5',n:'S5',t:'S’entraîner 1 : régler sa charge',goal:'au moins 2 mesures sur 3 (A) ou 3 sur 4 (B) dans ma zone.',
-  crit:['Échauffement progressif et complet','Ne change qu’un curseur à la fois','Continuité : pas d’arrêt hors mesures'],blocks:['warm','perso','regl',['fil','s5']]},
+  crit:['Échauffement progressif et complet','Ne change qu’un curseur à la fois','Continuité : pas d’arrêt hors mesures'],blocks:['warm',['coord',['chef']],'perso','regl',['fil','s5']]},
  {id:'s6',n:'S6',t:'S’entraîner 2 : le coach lit l’effort',goal:'mon coach relève toutes mes mesures et me donne 2 conseils utiles.',
-  crit:['Coach : oxymètre dans les 5 s','Coach : conseil = constat + action','Pratiquant : pied entier, gainage'],blocks:['warm',['fil','s6'],'obs']},
+  crit:['Coach : oxymètre dans les 5 s','Coach : conseil = constat + action','Pratiquant : pied entier, gainage'],blocks:['warm',['coord',['chef']],['fil','s6'],'obs']},
  {id:'s7',n:'S7',t:'Répétition générale (25 min)',goal:'3 mesures sur 4 dans ma zone et une analyse complète.',
-  crit:['Plan écrit avant de commencer','Réglage modifié si hors zone','Analyse : constat, cause, régulation'],blocks:['warm','plan','regl',['fil','eval'],'analyse']},
+  crit:['Plan écrit avant de commencer','Réglage modifié si hors zone','Analyse : constat, cause, régulation'],blocks:['warm',['coord',['chef']],'plan','regl',['fil','eval'],'analyse']},
  {id:'s8',n:'S8',t:'Évaluation',goal:'je réalise ma séance comme prévu et je l’analyse.',eval:true,
   crit:['Échauffement seul et complet','Coach précis : FC, arrêts, réglages','Séance réalisée comme annoncée'],blocks:['warm','plan',['fil','eval'],'obs','afl1','analyse','situe']}
 ];
+/* ---- défis de coordination (réussi / pas encore, sans points) ---- */
+const COORD={canon:['Le canon','Par rangée, bloc 1 en boucle : chacun démarre 8 temps après son voisin. Réussi si la vague tient 2 tours du bloc.'],
+ ronde:['La ronde','Traverse de step en step, sans arrêt. Réussi si un seul élève par step, tous sur le même temps, 3 tours.'],
+ annonce:['L’annonce','Pendant un pas, j’annonce le pas suivant à voix haute. Réussi si les blocs 1 et 2 sont annoncés sans erreur.'],
+ chef:['Chef d’orchestre','Meneur devant sa rangée, de dos : 4 fois les 3 blocs sans aide et sans erreur = badge Chef d’orchestre.']};
+const COORD_OPT={chef:[['1','✓ réussi : badge'],['0','pas encore'],['n','pas meneur aujourd’hui']]};
+function coordOf(run){const se=run.seances||{};const L=[];SESS.forEach(s=>{const co=se[s.id]&&se[s.id].co;if(co)Object.keys(co).forEach(k=>{if(co[k]==='1'&&!L.includes(k))L.push(k)})});return L}
 const SBY=Object.fromEntries(SESS.map(s=>[s.id,s]));
 const bk=b=>Array.isArray(b)?b:[b];
 const BLOC={1:['Genou G','Genou D','V step','V ¼ de tour à droite','Traverse','Cheval','Tap up'],2:['Pendule','Reverse','Talons G','Talons D','Lunge','Jazz square','Basique'],3:['Tap up','Back','V step','Hélicoptère','3 genoux','Jumping jack sur le step']};
@@ -12815,12 +12828,13 @@ function scoreSeance(sid,d,run){if(!DEFI_S.includes(sid)||!d||d.st)return {jp:0,
   return {jp,ci,tot:jp+ci}}
 function scoreRun(run){let jp=0,ci=0;DEFI_S.forEach(sid=>{const s=scoreSeance(sid,run.seances&&run.seances[sid],run);jp+=s.jp;ci+=s.ci});return {jp,ci,tot:jp+ci}}
 function pronoErrD(d){if(!d)return null;const p=num(getPath(d,'bl.pr')),f=num(getPath(d,'fl.m.0.fc'));if(p==null||f==null||!f)return null;return Math.abs(p-f)/f*100}
-const BADGES=[['memoire','Mémoire','3 blocs enchaînés seul (S4)'],['endurant','Endurant','12 min sans arrêt (S3)'],['devin','Devin','3 annonces Juste Pouls à ± 5'],['regleur','Régleur','2 séances de filière à 3 mesures sur 4 dans la zone'],['coach','Coach','pronostic à ± 5 % deux fois']];
+const BADGES=[['memoire','Mémoire','3 blocs enchaînés seul (S4)'],['endurant','Endurant','12 min sans arrêt (S3)'],['devin','Devin','3 annonces Juste Pouls à ± 5'],['regleur','Régleur','2 séances de filière à 3 mesures sur 4 dans la zone'],['coach','Coach','pronostic à ± 5 % deux fois'],['chef','Chef d’orchestre','4 fois les 3 blocs devant sa rangée, sans erreur (S4 à S7)']];
 function badgesOf(run,mate){const se=run.seances||{};const B=[];
   if(getPath(se,'s4.tri')==='1')B.push('memoire');
   const lg=se.s3&&se.s3.lg;if(lg&&lg.some(x=>x&&num(x.fc)!=null)&&num(getPath(se,'s3.lgar'))===0)B.push('endurant');
   let dv=0;DEFI_S.forEach(sid=>annonces(se[sid]).forEach(([a,f])=>{if(Math.abs(a-f)<=5)dv++}));if(dv>=3)B.push('devin');
   const z=zoneFor(run,filOf(run));let rg=0;['s5','s6','s7','s8'].forEach(sid=>{const M=((se[sid]&&se[sid].fl&&se[sid].fl.m)||[]).map(x=>num(x&&x.fc)).filter(x=>x!=null);if(M.length&&M.filter(x=>inZ(x,z)).length/M.length>=0.75)rg++});if(rg>=2)B.push('regleur');
+  if(SESS.some(s=>getPath(se,s.id+'.co.chef')==='1'))B.push('chef');
   if(mate){let c=0;SESS.forEach(s=>{const e=pronoErrD(mate.seances&&mate.seances[s.id]);if(e!=null&&e<=5)c++});if(c>=2)B.push('coach')}
   return B}
 
@@ -12851,14 +12865,17 @@ function chunkPayload(str,size){const tag=Math.random().toString(36).slice(2,6);
   for(let i=0;i<n;i++)out.push('SPP|'+tag+'|'+(i+1)+'/'+n+'|'+str.slice(i*size,(i+1)*size));return out}
 
 /* ===================== CARNET STEP · interface ===================== */
-let DB=load(STORE,{binomes:[],code:'1275',opts:{}});
+/* mode démo (lien …/?demo) : classe fictive rangée à part, les vraies données ne sont jamais touchées */
+const DEMO=!!window.CARNET_DEMO||/[?&#]demo\b/.test(location.search+location.hash);
+const SK=DEMO?STORE+'_demo':STORE, PSK=DEMO?PSTORE+'_demo':PSTORE;
+let DB=load(SK,{binomes:[],code:'1275',opts:{}});
 DB.schema=SCHEMA;DB.opts=DB.opts||{};
-let PDB=load(PSTORE,{students:{},stars:{}});PDB.schema=PDB.schema||SCHEMA;
+let PDB=load(PSK,{students:{},stars:{}});PDB.schema=PDB.schema||SCHEMA;
 document.documentElement.dataset.theme=DB.opts.dark?'dark':'light';
 let V={v:'home',cls:''};
 function load(k,def){try{const x=JSON.parse(localStorage.getItem(k));return x&&typeof x==='object'?Object.assign(def,x):def}catch(e){return def}}
-function save(){try{localStorage.setItem(STORE,JSON.stringify(DB))}catch(e){toast('Mémoire pleine : fais scanner tes QR par le prof.')}}
-function psave(){try{localStorage.setItem(PSTORE,JSON.stringify(PDB))}catch(e){toast('Mémoire pleine : exporte une sauvegarde.')}}
+function save(){try{localStorage.setItem(SK,JSON.stringify(DB))}catch(e){toast('Mémoire pleine : fais scanner tes QR par le prof.')}}
+function psave(){try{localStorage.setItem(PSK,JSON.stringify(PDB))}catch(e){toast('Mémoire pleine : exporte une sauvegarde.')}}
 if(navigator.storage&&navigator.storage.persist){try{navigator.storage.persist()}catch(e){}}
 const $=s=>document.querySelector(s);
 const uid=()=>Math.random().toString(36).slice(2,7);
@@ -12921,7 +12938,7 @@ function homeView(){
     return `<button class="bincard" data-open="${b.id}"><span class="cls">${esc(b.classe)}</span><b>${esc(b.runners[0].prenom)} ${esc(b.runners[0].nom.charAt(0))}.</b><b>${esc(b.runners[1].prenom)} ${esc(b.runners[1].nom.charAt(0))}.</b><span class="muted">${Object.keys(b.sent||{}).length} séance(s) envoyée(s)</span>${todo?`<span class="warn small">⚠ ${todo} QR à montrer au prof</span>`:''}</button>`}).join('')}</div>`:`<p class="muted">Aucun binôme sur cette tablette pour l’instant.</p>`}
   <button class="btn pri big home-new" data-go="new">＋ Créer un binôme</button>
   <div class="row wrap center"><button class="lnk" data-act="restore">↺ Restaurer un binôme avec le QR du prof</button></div>
-  <p class="ver">Carnet step ${APP_VERSION}. Les données restent sur cette tablette : rien n’est envoyé sur Internet.</p>`;
+  <p class="ver">Carnet step ${APP_VERSION}. Les données restent sur cette tablette : rien n’est envoyé sur Internet.${DEMO?'':` · <a href="${location.pathname}?demo">Voir la démo</a>`}</p>`;
 }
 function nameFields(i,x){x=x||{};const ini=DB.opts.ini;
   return `<fieldset><legend>Élève ${i+1}</legend><label>Prénom<input id="np${i}" value="${esc(x.prenom||'')}" autocomplete="off"></label><label>${ini?'Initiale du nom':'Nom'}<input id="nn${i}" value="${esc(x.nom||'')}" ${ini?'maxlength="1"':''} autocomplete="off"></label>
@@ -12953,6 +12970,7 @@ function binView(){
 /* ---------- consignes repliables (bouton ⓘ) ---------- */
 const HELP={
  fcr:()=>['<b>FC de repos</b> : assis, 3 min de calme absolu, puis oxymètre au doigt. C’est une valeur provisoire.','<b>La vraie FC de repos</b> se prend à la maison, 3 matins de suite, au réveil, avant de se lever (pouls 15 s × 4 ou oxymètre). Note-les ici dès que tu les as.'],
+ coord:(b)=>b[1].map(k=>'<b>'+COORD[k][0]+'</b> : '+COORD[k][1]).concat(['Ces défis ne donnent pas de points : on coche « réussi » ou « pas encore ». Tu peux le retenter à la séance suivante.']),
  tri:()=>['Pendant l’échauffement, les blocs 1, 2 et 3 enchaînés <b>seul, sans l’enseignant</b>, sans bras ni saut. Réussi = badge <b>Mémoire</b>.'],
  vise:()=>['Vise le <b>milieu</b> de la zone que tu penses choisir. Choisis ton réglage, <b>annonce ta FC</b> (Juste Pouls), 3 min de blocs, mesure.','Sous la zone : +1 curseur. Au-dessus : −1 curseur. Puis 2e essai.'],
  mes:(b)=>b[1]==='m1'?['<b>Effort 1 · 6 min sans arrêt</b> : le bloc 1 en boucle en suivant le prof, step sans réhausse, mains aux hanches, aucun saut, genou pas plus haut que la hanche.','<b>Effort 2 · 3 min</b> : le même bloc, même musique, mais les bras montent au-dessus des épaules et le genou plus haut que la hanche. Toujours aucun saut. Seuls ces 2 changements : tu vois ce qu’ils font à ta FC.','<b>Protocole oxymètre</b> : arrêt → doigt dans l’oxymètre <b>dans les 5 s</b> → lire la FC stable vers 10 s → noter. Ignore la saturation (SpO₂).','Le second mesuré du binôme a une valeur un peu plus basse : on alterne qui mesure en premier.','<b>Ressenti (0 à 10)</b> : 3 = je parle en phrases, 5 = par mots, 10 = je ne peux plus parler.']
@@ -13018,7 +13036,7 @@ function sessView(){
 }
 /* ---------- séance découpée en étapes ---------- */
 const RESULT=['afl1'];
-const STEP_KEY={fcr:'fcr',tri:'tri',vise:'vs',zcalc:'zc',cur:'cu',essai:'es',choix:'ch',warm:'wc',perso:'ps',regl:'rg',fil:'fl',obs:'ob',plan:'pl',analyse:'an',situe:'situe'};
+const STEP_KEY={fcr:'fcr',coord:'co',tri:'tri',vise:'vs',zcalc:'zc',cur:'cu',essai:'es',choix:'ch',warm:'wc',perso:'ps',regl:'rg',fil:'fl',obs:'ob',plan:'pl',analyse:'an',situe:'situe'};
 function filled(x){if(x==null||x==='')return false;if(Array.isArray(x))return x.some(filled);if(typeof x==='object')return Object.keys(x).some(k=>filled(x[k]));return true}
 function stepDone(B,d){const [ty,a1]=B;
   if(ty==='bilan')return filled(getPath(d,'bl.rpe'))&&(filled(getPath(d,'bl.reu'))||filled(getPath(d,'bl.nx')));
@@ -13123,6 +13141,7 @@ function blockView(b,s,run,d){
      ${F.e.map((e,si)=>`<div class="sub"><p class="small"><b>Série ${si+1} · ${e} min</b></p>${curRow('fl.s.'+si,d,'Réglage')}
        ${M.map((m,i)=>m[1]!==si?'':(()=>{const v=num(getPath(d,'fl.m.'+i+'.fc'));const dfi=isDefi(s.id);return `<div class="srow"><b class="sl">${esc(m[0].replace(/^Série \d+ · /,''))}</b>${dfi?anStp('fl.m.'+i+'.an',d,zz):''}<label>FC lue ${fcStp('fl.m.'+i+'.fc',d,zz)}</label><label>Arrêts ${stp('fl.m.'+i+'.ar',d,{min:0,max:10,start:0})}</label>${zbadge(v,zz,f)}${dfi?jpBadge(num(getPath(d,'fl.m.'+i+'.an')),v)+ciBadge(v,zz):''}</div>`})()).join('')}</div>`).join('')}
      <div class="outs">${out('Mesures dans ma zone',nn?tt+' / '+nn:'–','hi')}${isDefi(s.id)?(()=>{const sc=scoreSeance(s.id,d,run);return out('Points Juste Pouls',sc.jp)+out('Points Pile dans la cible',sc.ci)})():''}</div></section>`}
+  if(ty==='coord')return `<section class="card"><h3>${a1.length>1?'Défis':'Défi'} de coordination ${who('C')}</h3>${a1.map(k=>`<p class="small"><b>${COORD[k][0]}</b> · ${COORD[k][1]}</p>${segv('co.'+k,d,COORD_OPT[k]||[['1','✓ réussi'],['0','pas encore']])}`).join('')}</section>`;
   if(ty==='tri')return `<section class="card"><h3>Les 3 blocs enchaînés seul ${who('C')}</h3><p class="small">Pendant l’échauffement, sans l’enseignant, sans bras ni saut.</p>${segv('tri',d,[['1','✓ réussi : badge Mémoire'],['0','pas encore']])}</section>`;
   if(ty==='vise'){const vf=getPath(d,'vs.f');const zz=zoneFor(run,vf);
     return `<section class="card"><h3>Viser le milieu de ma zone : 2 × 3 min ${who('C')}</h3>${segv('vs.f',d,[['A','zone A'],['B','zone B']])}${zz?`<p class="small">Milieu visé : <b>${R((zz[0]+zz[1])/2)} /min</b> (zone ${zz[0]} à ${zz[1]})</p>`:''}
@@ -13375,6 +13394,7 @@ function profData(){
   return `${stu?`<section class="card thin"><p class="small">Cet appareil est déclaré <b>tablette d’élève</b> : aucune donnée de classe n’y est stockée. <button class="lnk small" data-act="devreset">Changer</button></p></section>`:`<section class="card"><h2>Données du prof</h2><p>${n} élève(s) enregistré(s) sur cet appareil.</p>
   <div class="row wrap"><button class="btn pri" data-act="csv">Export CSV de la classe ${esc(V.pc||'')}</button><button class="btn" data-act="backup">Sauvegarde complète (JSON)</button><label class="btn">Restaurer une sauvegarde<input type="file" accept=".json,application/json" id="restore" hidden></label></div>
   <p class="muted small">Sur iPad, ajoute l’application à l’écran d’accueil : Safari efface sinon les données d’un site non ouvert pendant 7 jours. Fais une sauvegarde après chaque séance.</p>
+  <h3>Présenter l’appli à un collègue</h3><p class="small">Lien de démonstration (classe fictive, aucune donnée réelle) : <b>${esc(location.origin+location.pathname)}?demo</b></p>
   <h3>Code du mode prof</h3><div class="row"><input class="in w" id="newcode" value="${esc(DB.code)}"><button class="btn" data-act="setcode">Changer</button></div>
   <h3>Effacer les données du prof</h3><button class="btn ghost" data-act="wipecls">Effacer la classe ${esc(V.pc||'')} de mes données</button>
   <p class="small">Cet appareil est déclaré <b>appareil du prof</b>. <button class="lnk small" data-act="devreset">Changer</button></p></section>`}
@@ -13396,6 +13416,7 @@ function detailModal(k,sid){
   ['m1','lv','lg'].forEach(key=>{if(d[key])L.push([{m1:'Premier effort',lv:'Test des leviers',lg:'Effort long'}[key],fcl(d[key])])});
   [1,2,3].forEach(i=>{const x=d['b'+i];if(x)L.push(['Bloc '+i,'enchaînés '+v(x.en)+' · erreurs '+v(x.er)+(x.df&&x.df.length?' · difficiles : '+esc(x.df.join(', ')):'')])});
   if(d.zc)L.push(['Calcul des zones',['mx','fr','a0','a1','b0','b1'].map(q=>v(d.zc[q])).join(' · ')+(d.zc.vu?' · vérifié':'')]);
+  if(d.co)L.push(['Coordination',Object.entries(d.co).map(([k,x])=>(COORD[k]?COORD[k][0]:k)+' : '+(x==='1'?'réussi':x==='n'?'pas meneur':'pas encore')).join(' · ')]);
   if(d.tri)L.push(['3 blocs enchaînés seul',d.tri==='1'?'oui (badge Mémoire)':'pas encore']);
   if(d.vs)L.push(['Viser le milieu (zone '+v(d.vs.f)+')',[1,2].map(i=>d.vs[i]?v(regTot(d.vs[i].r))+' → '+v(d.vs[i].fc)+(d.vs[i].an?' (annonce '+esc(d.vs[i].an)+')':''):'·').join(' · ')]);
   if(DEFI_S.includes(sid)){const sc=scoreSeance(sid,d,run);const an=annonces(d);if(an.length||sc.ci)L.push(['Défis','Juste Pouls '+sc.jp+' pts ('+an.map(([a,f])=>a+'→'+f).join(', ')+')'+(sc.ci?' · cible '+sc.ci+' pts':'')])}
@@ -13428,11 +13449,11 @@ function restoreQrModal(k){const st=PDB.students[k];const bin=binOf(k,st);
    <div class="qr" id="rqr">${qrSvg(parts[0])}</div><p class="center small" id="rqn">1 / ${parts.length}</p><div class="row center"><button class="btn" data-act="closem">Fermer</button></div>`);
   if(RQ.h)clearInterval(RQ.h);if(parts.length>1)RQ.h=setInterval(()=>{i=(i+1)%parts.length;const q=$('#rqr'),n=$('#rqn');if(!q){clearInterval(RQ.h);return}q.innerHTML=qrSvg(parts[i]);n.textContent=(i+1)+' / '+parts.length},1200)}
 function csvExport(){
-  const head=['Classe','Nom','Prénom','Sexe','Âge','FC repos','Filière','Zone bas','Zone haut','Juste Pouls','Cible','Badges','Réussites','Tentées','%','Degré AFL2',...SESS.map(s=>s.n+' réussites'),...SESS.map(s=>s.n+' ★AFL2'),...SESS.map(s=>s.n+' ★AFL3'),'S7 produire /8','S8 zone /3','S8 continuité /2','S8 sécurité /2','S8 plan /1','S8 produire /8','Analyse /4','AFL1 /12','Répartition','AFL2','AFL3','Total /20'];
+  const head=['Classe','Nom','Prénom','Sexe','Âge','FC repos','Filière','Zone bas','Zone haut','Juste Pouls','Cible','Badges','Défis coordination réussis','Réussites','Tentées','%','Degré AFL2',...SESS.map(s=>s.n+' réussites'),...SESS.map(s=>s.n+' ★AFL2'),...SESS.map(s=>s.n+' ★AFL3'),'S7 produire /8','S8 zone /3','S8 continuité /2','S8 sécurité /2','S8 plan /1','S8 produire /8','Analyse /4','AFL1 /12','Répartition','AFL2','AFL3','Total /20'];
   const Lr=[head];studs(V.pc).forEach(([k,st])=>{const run=runOf(st);const [TT,N]=stTotals(st);const f=filOf(run);const z=zoneFor(run,f);const b7=afl1(run,st.seances.s7),e8=afl1(run,st.seances.s8);
     const an=num(st.an),a2=num(st.afl2),a3=num(st.afl3);const a1=e8&&an!=null?e8.prod+an:null;
     const mate=Object.entries(PDB.students).find(([kk,s2])=>kk!==k&&binOf(kk,s2)&&binOf(kk,s2)===binOf(k,st));const sc=scoreRun(run);const bg=badgesOf(run,mate?runOf(mate[1]):null).map(x=>BADGES.find(b=>b[0]===x)[1]).join(' ');
-    Lr.push([st.classe,st.nom,st.prenom,st.sexe||'',st.age||'',fcRepos(run)!=null?R(fcRepos(run)):'',f||'',z?z[0]:'',z?z[1]:'',sc.jp,sc.ci,bg,TT,N,N?R(100*TT/N):'',degreeOf(TT,N)||'',...SESS.map(s=>{const x=tenR(run,s.id);return x[1]?x[0]+'/'+x[1]:''}),...SESS.map(s=>starOf(k,s.id).a2?1:''),...SESS.map(s=>starOf(k,s.id).a3?1:''),
+    Lr.push([st.classe,st.nom,st.prenom,st.sexe||'',st.age||'',fcRepos(run)!=null?R(fcRepos(run)):'',f||'',z?z[0]:'',z?z[1]:'',sc.jp,sc.ci,bg,coordOf(run).map(k=>COORD[k][0]).join(' '),TT,N,N?R(100*TT/N):'',degreeOf(TT,N)||'',...SESS.map(s=>{const x=tenR(run,s.id);return x[1]?x[0]+'/'+x[1]:''}),...SESS.map(s=>starOf(k,s.id).a2?1:''),...SESS.map(s=>starOf(k,s.id).a3?1:''),
       b7?b7.prod:'',e8?e8.zn:'',e8?e8.co:'',e8&&e8.sec!=null?e8.sec:'',e8&&e8.pl!=null?e8.pl:'',e8?e8.prod:'',st.an||'',a1!=null?a1:'',(st.seances.s4&&st.seances.s4.ch&&st.seances.s4.ch.rep)||'',st.afl2||'',st.afl3||'',a1!=null&&a2!=null&&a3!=null?R((a1+a2+a3)*10)/10:''])});
   dl('carnet_step_'+norm(V.pc).replace(/\W+/g,'_')+'.csv','﻿'+Lr.map(r=>r.map(x=>{if(typeof x==='number')x=String(x).replace('.',',');x=String(x);return /[;"\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x}).join(';')).join('\n'),'text/csv');
 }
@@ -13567,5 +13588,55 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had)showUpd();had=true});
   navigator.serviceWorker.register('sw.js').then(reg=>{reg.update().catch(()=>{});setInterval(()=>reg.update().catch(()=>{}),3600e3)}).catch(()=>{});
 }
+/* ===================== MODE DÉMO : classe fictive pour présenter le carnet aux collègues ===================== */
+function demoRnd(seed){let s=seed;return ()=>{s=(s*16807)%2147483647;return (s-1)/2147483646}}
+function demoRunner(p,rnd,nsess,flags){
+  const J=a=>a[Math.floor(rnd()*a.length)],E=n=>Math.round((rnd()*2-1)*n),S=String;
+  const mx=(p.x==='F'?226:220)-p.a,fcr=mx-p.rep,at=pc=>R(p.rep+fcr*pc),Z={A:[at(.8),at(.95)],B:[at(.55),at(.7)]},z=Z[p.f],mid=R((z[0]+z[1])/2);
+  const fc=pc=>S(at(pc)+E(4)),an=v=>S(R(+v+E(p.dev)));const mes=(v)=>({an:an(v),fc:S(v)});
+  const inz=()=>{const v=rnd()<p.pr?mid+E(R((z[1]-z[0])/2)-1):(rnd()<.5?z[0]-2-Math.round(rnd()*6):z[1]+2+Math.round(rnd()*6));return v};
+  const reg=f=>f==='A'?{H:'1',B:'2',P:S(1+Math.round(rnd())),A:'1'}:{H:'0',B:'1',P:'0',A:S(1+Math.round(rnd()))};
+  const BL=(i,k)=>{const o={cr:['1',rnd()<.7?'1':'',rnd()<.5?'1':''],reu:J(['Pied entier tout du long','Bonne régularité','Bras bien hauts','Tu as tenu sans arrêt','Bon réglage dès le début']),con:J(['Regarde devant, pas tes pieds','Monte plus haut sur le step','Garde le dos droit','+1 amplitude pour monter dans la zone','Respire en rythme']),aide:rnd()<.8?'1':'0',rpe:S(J(p.f==='A'?[6,7,7,8]:[4,5,5,6])),du:'55'};
+    if(i>=3){o.dc=J(['+A','+P','-B','=','+B']);o.nx=J(['Garder mon réglage','Monter d’un curseur','Mieux annoncer ma FC'])}if(k)o.pr=S(+k+E(16));return o};
+  const se={};const add=(sid,d)=>{if(SESS.findIndex(s=>s.id===sid)<nsess)se[sid]=d};
+  add('s1',{fcr:{pv:S(p.rep+4+E(3)),m:[S(p.rep+E(2)),S(p.rep+E(2)),S(p.rep+E(2))]},b1:{en:S(3+Math.floor(rnd()*3)),er:S(Math.floor(rnd()*3))},m1:[{fc:fc(.5),rp:'3'},{fc:fc(.68),rp:'6'}],bl:BL(0)});
+  add('s2',{co:{canon:rnd()<.7?'1':'0'},b2:{en:S(3+Math.floor(rnd()*3)),er:S(Math.floor(rnd()*3)),df:rnd()<.5?['Reverse']:[]},lv:[{fc:fc(.55),rp:'4'},{fc:fc(.7),rp:'6'},{fc:fc(.82),rp:'8'}],zc:{mx:S(mx),fr:S(fcr),a0:S(Z.A[0]),a1:S(Z.A[1]),b0:S(Z.B[0]),b1:S(Z.B[1]),vu:'1'},bl:BL(1)});
+  const l1=at(.6)+E(5),l2=at(.66)+E(5);
+  add('s3',{co:{ronde:'1',annonce:rnd()<.6?'1':'0'},b3:{en:S(3+Math.floor(rnd()*3)),er:S(Math.floor(rnd()*3))},lg:[mes(l1),mes(l2)],lgar:rnd()<.7?'0':'1',bl:BL(2)});
+  const lo=at(.58)+E(4),hi=at(.86)+E(4),v1=mid+E(10),v2=inz();
+  add('s4',{tri:rnd()<.7?'1':'0',co:{chef:flags.chef||'n'},cu:{lo:{r:{H:'0',B:'0',P:'0',A:'0'},...mes(lo)},hi:{r:{H:'1',B:'2',P:'2',A:'1'},...mes(hi)}},vs:{f:p.f,1:{r:reg(p.f),...mes(v1)},2:{r:reg(p.f),...mes(v2)}},
+    es:{f:p.f,m:mesures(p.f,'s4').map(()=>mes(inz()))},ch:{f:p.f,a1:p.f==='A'?'J’aime les efforts courts et forts':'Je tiens longtemps sans m’arrêter',a2:p.f==='A'?'2 mesures sur 3 dans la zone A':'2 mesures sur 2 dans la zone B',a3:J(['Préparer le cross','M’entretenir','Améliorer mon cardio','Préparer un concours']),rep:J(['6/2','4/4','4/4','2/6'])},bl:BL(3)});
+  const m5=mesures(p.f,'s5').map(()=>inz()),r1=mid-6+E(4),r2=inz();
+  add('s5',{wc:['so','br','bs','ge','b1','b2','b3','fi'].filter(()=>rnd()<.9),co:{chef:flags.chef5||'n'},ps:{b1:reg(p.f),b2:reg(p.f),b3:reg(p.f)},rg:{1:{r:reg(p.f),...mes(r1)},2:{r:reg(p.f),...mes(r2)}},fl:{s:[reg(p.f)],m:m5.map(v=>({...mes(v),ar:rnd()<.85?'0':'1'}))},bl:BL(4,m5[0])});
+  const m6=mesures(p.f,'s6').map(()=>inz());
+  add('s6',{wc:['so','br','bs','ge','b1','b2','b3','fi','fc'],co:{chef:'n'},fl:{m:m6.map(v=>({...mes(v),ar:'0'}))},ob:{sec:J(['2','1.5','1.5']),pl:J(['1','1','0.5'])},bl:BL(5,m6[0])});
+  return se}
+function demoInit(){
+  if(!DB.demoSeeded){
+    const rnd=demoRnd(20261029);
+    const mk=(a,b,nsess,sentN,fl)=>{const bin={id:'demo'+uid(),classe:'2nde Démo',runners:[a,b].map((r,i)=>({prenom:r.p,nom:r.n,sexe:r.x,age:r.a,seances:demoRunner(r,rnd,nsess,(fl||[])[i]||{})})),sent:{}};
+      SESS.slice(0,sentN).forEach(s=>bin.sent[s.id]=Date.now()-86400e3);return bin};
+    const B=[mk({p:'Léa',n:'Martin',x:'F',a:15,rep:66,f:'B',pr:.8,dev:5},{p:'Hugo',n:'Bernard',x:'G',a:16,rep:58,f:'A',pr:.7,dev:8},6,6,[{chef:'1'},{}]),
+             mk({p:'Inès',n:'Durand',x:'F',a:15,rep:72,f:'B',pr:.6,dev:9},{p:'Tom',n:'Petit',x:'G',a:15,rep:64,f:'B',pr:.75,dev:6},6,6,[{},{chef5:'1'}]),
+             mk({p:'Chloé',n:'Moreau',x:'F',a:16,rep:60,f:'A',pr:.85,dev:4},{p:'Yanis',n:'Robert',x:'G',a:16,rep:62,f:'A',pr:.55,dev:11},6,5),
+             mk({p:'Sarah',n:'Faure',x:'F',a:15,rep:70,f:'B',pr:.7,dev:7},{p:'Nathan',n:'Blanc',x:'G',a:15,rep:61,f:'A',pr:.65,dev:8},5,5)];
+    /* quelques situations à montrer : absence + coach remplaçant, pratique adaptée */
+    B[1].runners[1].seances.s3={st:'abs'};B[1].runners[0].seances.s3.cx={n:'Yanis R.',why:'abs'};
+    B[2].runners[0].seances.s4.ad='1';
+    DB.binomes=B;DB.opts.dev='prof';DB.demoSeeded=1;save();
+    PDB={students:{},stars:{},schema:SCHEMA};
+    DB.binomes.forEach(b=>SESS.forEach(s=>{if(b.sent[s.id])try{profAddAny(qrPayload(b,s.id))}catch(e){}}));
+    Object.keys(PDB.students).forEach((k,i)=>{PDB.stars[k]={s3:{a2:i%2===0},s6:{a3:i%3===0}}});
+    psave();
+  }
+  const bar=document.createElement('div');bar.id='demobar';
+  bar.innerHTML=`<b>DÉMO</b><span>classe fictive, vos vraies données ne sont pas touchées</span><button data-act="demoeleve"><i>Côté&nbsp;</i>élève</button><button data-act="demoprof"><i>Côté&nbsp;</i>prof</button><button data-act="demoreset" title="Réinitialiser la démo">↺<i>&nbsp;Réinitialiser</i></button>${window.CARNET_DEMO?'':`<a href="${location.pathname}" title="Quitter la démo">✕<i>&nbsp;Quitter</i></a>`}`;
+  document.body.insertBefore(bar,document.body.firstChild);
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act;
+    if(a==='demoeleve'){closeModal();go({v:'home'})}
+    if(a==='demoprof'){closeModal();if(!DB.opts.dev){DB.opts.dev='prof';save()}go({v:'prof',ptab:'classe',pc:'2nde Démo'})}
+    if(a==='demoreset'){try{localStorage.removeItem(SK);localStorage.removeItem(PSK)}catch(x){}location.reload()}},true);
+}
+if(DEMO)demoInit();
 render();
 </script></body></html>

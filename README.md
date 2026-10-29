@@ -30,8 +30,12 @@ Une tablette par binôme : les élèves remplissent leur carnet à chaque séanc
 ## Défis (S3 à S7)
 - **Juste Pouls** : avant chaque mesure, l'élève annonce sa FC ; à ± 5 = 3 pts, à ± 10 = 1 pt.
 - **Pile dans la cible** (séances de filière S5 à S7) : milieu de la zone ± 3 = 3 pts, dans la zone = 2 pts, à 5 près = 1 pt.
-- **Badges** : Mémoire, Endurant, Devin, Régleur, Coach, affichés sur la page du binôme et dans « Ma progression ».
+- **Défis de coordination** (S2 : Le canon ; S3 : La ronde, L'annonce) : réussi / pas encore, sans points, cochés par le coach dans la séance.
+- **Badges** : Mémoire, Endurant, Devin, Régleur, Coach, Chef d'orchestre (meneur devant sa rangée, 4 fois les 3 blocs sans erreur, S4 à S7), affichés sur la page du binôme et dans « Ma progression ».
 - Score du binôme sur la page du binôme ; classement de la classe dans l'onglet *Défis* du mode prof (il n'entre pas dans la note). S8 : pas d'annonce ni de points.
+
+## Version démo (pour présenter l'appli)
+Ajouter `?demo` à l'adresse : https://yannickdartois-hue.github.io/Carnet-Step-/?demo (lien aussi en bas de l'accueil et dans *Prof → Données*). Classe fictive « 2nde Démo » : 4 binômes, S1 à S6 remplies, défis, badges, une absence avec coach remplaçant, une pratique adaptée. Bandeau DÉMO : *Côté élève*, *Côté prof*, *Réinitialiser*, *Quitter*. Les données de la démo sont rangées à part : les vraies données de la tablette ne sont jamais touchées.
 
 ## Utilisation professeur (bouton *Prof*, code **1275**)
 - *Scanner* (caméra, photo ou texte collé) → *Classe* : filière, zone, réussites S1-S8, écart à la zone début → fin, « comme coach », produire /8 de la blanche (S7) et de l'évaluation (S8), analyse /4 à saisir, AFL1 /12, répartition, AFL2, AFL3, total /20.
@@ -43,4 +47,10 @@ Une tablette par binôme : les élèves remplissent leur carnet à chaque séanc
 Aucune donnée n'est envoyée sur Internet : tout reste dans le navigateur des tablettes et de l'appareil du professeur. Faire une **sauvegarde JSON** après chaque séance. En fin de cycle, effacer la classe des tablettes.
 
 ## Mise à jour
-Remplacer les fichiers et **changer le numéro de version** dans `sw.js` (`carnet-step-v1` → `v2`…).
+Remplacer les fichiers et **changer le numéro de version** dans `sw.js` (`carnet-step-v8` → `v9`…). Le service worker n'efface que ses propres caches : les autres applis du site gardent leur copie hors ligne.
+
+## Versions
+- v3 (29/10/2026) : version démo (`?demo`), comme le carnet de demi-fond.
+- v2 (27/10/2026) : défis de coordination S2-S3, badge Chef d'orchestre, colonne « Défis coordination réussis » dans l'export CSV.
+- 25-26/10/2026 : charte v1 (thème clair imposé, couleur step, polices embarquées), cache hors ligne propre à l'appli, ouverture depuis le cache si le réseau dépasse 3 s.
+- v1 (12/10/2026) : première version.
