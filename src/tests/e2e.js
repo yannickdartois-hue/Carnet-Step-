@@ -25,7 +25,7 @@ const { chromium } = require('playwright');
  await p.evaluate(()=>{const b=curBin();const r=b.runners[0];const S=r.seances;
    Object.assign(S.s1,{fcr:{pv:'72',m:['66','64','65']},b1:{en:'4',er:'1'},m1:[{fc:'128',rp:'4'},{fc:'150',rp:'6'}],bl:{cr:['1','1',''],reu:'Pied entier',con:'Regard devant',rpe:'5',du:'55',aide:'1'}});
    S.s2={b2:{en:'4',er:'1',df:['Reverse']},lv:[{fc:'140'},{fc:'162'},{fc:'170'}],zc:{mx:'211',fr:'146',a0:'182',a1:'204',b0:'145',b1:'167'},bl:{rpe:'6',du:'55',reu:'ok'}};
-   S.s2.co={canon:'1'};S.s3={co:{ronde:'1',annonce:'0'},b3:{en:'5',er:'2'},lg:[{an:'150',fc:'152'},{an:'160',fc:'158'}],lgar:'0',bl:{rpe:'5',du:'55',reu:'ok'}};
+   S.s2.co={canon:'1'};S.s3={co:{ronde:'1',annonce:'0'},b3:{en:'5',er:'2'},bi:[{an:'190',fc:'187'}],lg:[{an:'150',fc:'152'},{an:'160',fc:'158'}],lgar:'0',bl:{rpe:'5',du:'55',reu:'ok'}};
    S.s4={tri:'1',co:{chef:'1'},cu:{lo:{r:{H:'0',B:'0',P:'0',A:'0'},an:'135',fc:'140'},hi:{r:{H:'1',B:'2',P:'2',A:'1'},an:'175',fc:'172'}},vs:{f:'B',1:{an:'150',fc:'148'},2:{an:'156',fc:'157'}},es:{f:'B',m:[{an:'152',fc:'150'},{an:'155',fc:'158'}]},ch:{f:'B',a1:'Je tiens',a2:'2/2 en zone',a3:'Entretien',rep:'4/4'},bl:{rpe:'5',du:'55',dc:'+A',reu:'ok'}};
    S.s5={wc:['so','br','bs','ge','b1','b2','b3','fi'],ps:{b1:{H:'0',B:'1',P:'0',A:'2'}},rg:{1:{r:{H:'0',B:'1',P:'0',A:'1'},an:'145',fc:'140'},2:{r:{H:'0',B:'1',P:'0',A:'2'},an:'152',fc:'150'}},fl:{s:[{H:'0',B:'1',P:'0',A:'2'}],m:[{an:'150',fc:'148'},{an:'155',fc:'155'},{an:'158',fc:'160'},{an:'160',fc:'170'}]},bl:{rpe:'5',du:'55',pr:'150',reu:'ok'}};
    S.s7={wc:['so','br','bs','ge','b1','b2','b3','fi','fc'],pl:{r:['2','3'],si:'+1 amplitude'},fl:{m:[{an:'152',fc:'150'},{fc:'156',ar:'1'},{fc:'160'},{fc:'163'}]},ob:{sec:'1.5',pl:'1'},an:{c:'4/4',k:'bon réglage',r:'rien'},bl:{rpe:'5',du:'55',reu:'ok',pr:'152'}};
@@ -34,7 +34,13 @@ const { chromium } = require('playwright');
  const ids=['s1','s2','s3','s4','s5','s6','s7','s8'];
  for(const sid of ids){await p.evaluate(sid=>go({v:'sess',sid,ri:0,cur:0}),sid);await p.waitForTimeout(60);await p.screenshot({path:SH+`${sid}.png`,fullPage:true})}
  const ten=await p.evaluate(()=>{const r=curBin().runners[0];return SESS.map(s=>s.id+':'+tenus(s.id,r.seances[s.id],r).join('/'))+' | zones '+JSON.stringify(zonesOf(r))+' fil '+filOf(r)+' afl1 '+JSON.stringify(afl1(r,r.seances.s8))});
- console.log(ten);console.log(await p.evaluate(()=>{const b=curBin();return JSON.stringify(b.runners.map((r,i)=>[scoreRun(r),badgesOf(r,b.runners[1-i])]))}));
+ console.log(ten);
+ // FC max observée (plafonnée à théorique + 20) et tolérance de 5 sous la zone A pour la note
+ const fcm=await p.evaluate(()=>{const r={age:16,sexe:'G',seances:{s1:{fcr:{m:['60','60','60']}},s2:{lv:[{fc:'150'},{fc:'210'},{fc:'240'}]}}};const a=fcMax(r);r.seances.s2.lv[1].fc='230';const b=fcMax(r);
+   const run={age:16,sexe:'G',seances:{s1:{fcr:{m:['60','60','60']}},s4:{ch:{f:'A'}}}};const z=zonesOf(run);run.seances.s8={fl:{m:[{fc:String(z.A[0]-4)},{fc:String(z.A[0]-6)},{fc:String(z.A[0])},{fc:String(z.A[1])}]}};
+   return [a,b,fcMaxTheo(r),afl1(run,run.seances.s8).dz]});
+ if(fcm[0]!==210||fcm[1]!==224||fcm[2]!==204)errs.push('FC max observée : '+fcm);
+ if(fcm[3]!==3)errs.push('tolérance zone A : '+fcm[3]+' au lieu de 3');console.log(await p.evaluate(()=>{const b=curBin();return JSON.stringify(b.runners.map((r,i)=>[scoreRun(r),badgesOf(r,b.runners[1-i])]))}));
  for(const v of ['bin']){await p.evaluate(v=>go({v}),v);await p.waitForTimeout(60);await p.screenshot({path:SH+'bin2.png',fullPage:true})}
  // QR payloads
  const pls=await p.evaluate(()=>{const b=curBin();return SESS.map(s=>qrPayload(b,s.id))});

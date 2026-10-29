@@ -50,6 +50,7 @@ Aucune donnée n'est envoyée sur Internet : tout reste dans le navigateur des t
 Remplacer les fichiers et **changer le numéro de version** dans `sw.js` (`carnet-step-v8` → `v9`…). Le service worker n'efface que ses propres caches : les autres applis du site gardent leur copie hors ligne.
 
 ## Versions
+- v3.2 (29/10/2026) : FC max observée retenue quand elle dépasse 220 − âge (plafond théorique + 20) ; note « zone » de la filière A avec 5 pulsations de tolérance sous la zone (la FC baisse dès l'arrêt) ; S3 : essai bref et intense 3 × 1 min avec annonce Juste Pouls, pour vivre les deux filières avant de choisir.
 - v3 (29/10/2026) : version démo (`?demo`), comme le carnet de demi-fond.
 - v2 (27/10/2026) : défis de coordination S2-S3, badge Chef d'orchestre, colonne « Défis coordination réussis » dans l'export CSV.
 - 25-26/10/2026 : charte v1 (thème clair imposé, couleur step, polices embarquées), cache hors ligne propre à l'appli, ouverture depuis le cache si le réseau dépasse 3 s.

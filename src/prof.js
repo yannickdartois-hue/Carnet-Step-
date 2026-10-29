@@ -111,7 +111,7 @@ function detailModal(k,sid){
   const fcl=(arr)=>arr.map(x=>x&&x.fc!=null?esc(x.fc)+(x.rp!=null?' ('+esc(x.rp)+')':''):'·').join(' · ');
   if(d.fcr)L.push(['FC de repos','provisoire '+v(d.fcr.pv)+' · matins '+(d.fcr.m||[]).map(x=>x||'·').join(' / ')]);
   if(d.pm)L.push(['Pas réussis',esc(d.pm.join(', '))]);
-  ['m1','lv','lg'].forEach(key=>{if(d[key])L.push([{m1:'Premier effort',lv:'Test des leviers',lg:'Effort long'}[key],fcl(d[key])])});
+  ['m1','lv','bi','lg'].forEach(key=>{if(d[key])L.push([{m1:'Premier effort',lv:'Test des leviers',bi:'Essai bref et intense',lg:'Effort long'}[key],fcl(d[key])])});
   [1,2,3].forEach(i=>{const x=d['b'+i];if(x)L.push(['Bloc '+i,'enchaînés '+v(x.en)+' · erreurs '+v(x.er)+(x.df&&x.df.length?' · difficiles : '+esc(x.df.join(', ')):'')])});
   if(d.zc)L.push(['Calcul des zones',['mx','fr','a0','a1','b0','b1'].map(q=>v(d.zc[q])).join(' · ')+(d.zc.vu?' · vérifié':'')]);
   if(d.co)L.push(['Coordination',Object.entries(d.co).map(([k,x])=>(COORD[k]?COORD[k][0]:k)+' : '+(x==='1'?'réussi':x==='n'?'pas meneur':'pas encore')).join(' · ')]);
@@ -272,7 +272,7 @@ function demoRunner(p,rnd,nsess,flags){
   add('s1',{fcr:{pv:S(p.rep+4+E(3)),m:[S(p.rep+E(2)),S(p.rep+E(2)),S(p.rep+E(2))]},b1:{en:S(3+Math.floor(rnd()*3)),er:S(Math.floor(rnd()*3))},m1:[{fc:fc(.5),rp:'3'},{fc:fc(.68),rp:'6'}],bl:BL(0)});
   add('s2',{co:{canon:rnd()<.7?'1':'0'},b2:{en:S(3+Math.floor(rnd()*3)),er:S(Math.floor(rnd()*3)),df:rnd()<.5?['Reverse']:[]},lv:[{fc:fc(.55),rp:'4'},{fc:fc(.7),rp:'6'},{fc:fc(.82),rp:'8'}],zc:{mx:S(mx),fr:S(fcr),a0:S(Z.A[0]),a1:S(Z.A[1]),b0:S(Z.B[0]),b1:S(Z.B[1]),vu:'1'},bl:BL(1)});
   const l1=at(.6)+E(5),l2=at(.66)+E(5);
-  add('s3',{co:{ronde:'1',annonce:rnd()<.6?'1':'0'},b3:{en:S(3+Math.floor(rnd()*3)),er:S(Math.floor(rnd()*3))},lg:[mes(l1),mes(l2)],lgar:rnd()<.7?'0':'1',bl:BL(2)});
+  add('s3',{co:{ronde:'1',annonce:rnd()<.6?'1':'0'},bi:[{...mes(at(.84)+E(6)),rp:'8'}],b3:{en:S(3+Math.floor(rnd()*3)),er:S(Math.floor(rnd()*3))},lg:[mes(l1),mes(l2)],lgar:rnd()<.7?'0':'1',bl:BL(2)});
   const lo=at(.58)+E(4),hi=at(.86)+E(4),v1=mid+E(10),v2=inz();
   add('s4',{tri:rnd()<.7?'1':'0',co:{chef:flags.chef||'n'},cu:{lo:{r:{H:'0',B:'0',P:'0',A:'0'},...mes(lo)},hi:{r:{H:'1',B:'2',P:'2',A:'1'},...mes(hi)}},vs:{f:p.f,1:{r:reg(p.f),...mes(v1)},2:{r:reg(p.f),...mes(v2)}},
     es:{f:p.f,m:mesures(p.f,'s4').map(()=>mes(inz()))},ch:{f:p.f,a1:p.f==='A'?'J’aime les efforts courts et forts':'Je tiens longtemps sans m’arrêter',a2:p.f==='A'?'2 mesures sur 3 dans la zone A':'2 mesures sur 2 dans la zone B',a3:J(['Préparer le cross','M’entretenir','Améliorer mon cardio','Préparer un concours']),rep:J(['6/2','4/4','4/4','2/6'])},bl:BL(3)});

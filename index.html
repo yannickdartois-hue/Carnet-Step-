@@ -12731,7 +12731,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 });</script>
 <script>/* ===================== CARNET STEP · CA5 · Seconde · cœur commun (élève + prof) ===================== */
 'use strict';
-const APP_VER=1, APP_VERSION='v3.1 · 29/10/2026', SCHEMA=1, STORE='step2_carnet_v1', PSTORE='step2_prof_v1';
+const APP_VER=1, APP_VERSION='v3.2 · 29/10/2026', SCHEMA=1, STORE='step2_carnet_v1', PSTORE='step2_prof_v1';
 const R=x=>Math.floor(x+0.5);
 const num=v=>{if(v===''||v==null)return null;const n=parseFloat(String(v).replace(',','.'));return isNaN(n)?null:n};
 const fc1=x=>x==null||isNaN(x)?'–':String(R(x*10)/10).replace('.',',');
@@ -12752,9 +12752,18 @@ const CURS=[['H','Hauteur',['sans réhausse','1 réhausse','2 réhausses']],['B'
 function fcRepos(run){if(num(run.fcrM)!=null)return num(run.fcrM);const se=run.seances||{};
   for(const sid of ['s2','s1']){const f=se[sid]&&se[sid].fcr;if(f){const m=(f.m||[]).map(num).filter(x=>x!=null);if(m.length)return m.reduce((a,x)=>a+x,0)/m.length}}
   const p=se.s1&&se.s1.fcr&&num(se.s1.fcr.pv);return p}
-function fcMax(run){const a=num(run.age);if(!a)return null;return (run.sexe==='F'?226:220)-a}
+function fcMaxTheo(run){const a=num(run.age);if(!a)return null;return (run.sexe==='F'?226:220)-a}
+/* FC max observée : la plus haute FC mesurée dans les séances (valeurs vraisemblables seulement).
+   220 − âge se trompe d'environ ± 10 pulsations : si l'élève a déjà dépassé sa FC max théorique, c'est la valeur observée qui compte
+   (plafonnée à théorique + 20, au-delà c'est une erreur d'oxymètre). */
+function fcMaxObs(run){let m=null;const walk=o=>{if(!o||typeof o!=='object')return;for(const k in o){if(k==='fc'){const v=num(o[k]);if(v!=null&&v>=100&&v<=230&&(m==null||v>m))m=v}else walk(o[k])}};
+  Object.values(run.seances||{}).forEach(d=>{if(d&&!d.st)walk(d)});return m}
+function fcMax(run){const t=fcMaxTheo(run);if(t==null)return null;const o=fcMaxObs(run);return o!=null&&o>t?Math.min(o,t+20):t}
+function zonesWith(rep,mx){if(rep==null||mx==null)return null;const fcr=mx-rep;const z=p=>R(rep+fcr*p/100);return {rep:R(rep),max:mx,fcr:R(fcr),A:[z(80),z(95)],B:[z(55),z(70)]}}
+/* zones « du calcul » (FC max théorique) : ce que l'élève calcule lui-même en S2 */
+function zonesTheo(run){return zonesWith(fcRepos(run),fcMaxTheo(run))}
 function zonesOf(run){const rep=fcRepos(run),mx=fcMax(run);if(rep==null||mx==null)return null;const fcr=mx-rep;const z=p=>R(rep+fcr*p/100);
-  return {rep:R(rep),max:mx,fcr:R(fcr),A:[z(80),z(95)],B:[z(55),z(70)]}}
+  return {rep:R(rep),max:mx,maxTheo:fcMaxTheo(run),obs:mx>fcMaxTheo(run),fcr:R(fcr),A:[z(80),z(95)],B:[z(55),z(70)]}}
 function filOf(run){const se=run.seances||{};for(const sid of ['s8','s7','s6','s5','s4']){const c=se[sid]&&(se[sid].ch||se[sid].pl);if(c&&c.f)return c.f}return run.filM||null}
 function zoneFor(run,f){const z=zonesOf(run);return z&&f?z[f]:null}
 function inZ(fc,z){return fc!=null&&z?fc>=z[0]&&fc<=z[1]:null}
@@ -12766,8 +12775,8 @@ const SESS=[
   crit:['Pied entier posé, sans bruit','Descend toujours en arrière','Reste sur le temps de la musique'],blocks:['fcr',['bloc',1],['mes','m1','Premier effort, première mesure',[['Effort 1 · 6 min de bloc 1, mains aux hanches, sans saut','basse'],['Effort 2 · 3 min de bloc 1, bras au-dessus des épaules, genou plus haut que la hanche','haute']]]]},
  {id:'s2',n:'S2',t:'Bloc 2 et test des leviers',goal:'je sais dire quel réglage me fait gagner le plus de pulsations.',
   crit:['Jamais de descente en avant (reverse)','Regard devant, pas sur ses pieds','Ne change qu’un réglage à la fois'],blocks:[['coord',['canon']],['bloc',2],['mes','lv','Test des leviers : 3 × 3 min de bloc 1',[['Série 1 · step sans réhausse, mains aux hanches, aucun saut','version basse'],['Série 2 · + propulsion (genoux et tap up sautés)','+ propulsion'],['Série 3 · + propulsion, 1 réhausse, bras au-dessus des épaules','+ réhausse + bras']]],'zcalc']},
- {id:'s3',n:'S3',t:'Bloc 3, effort long, Juste Pouls',goal:'je tiens 12 min sans arrêt et j’annonce ma FC à 10 près.',
-  crit:['Back sans saut, réception stable','Effort régulier sur les 12 min','Annonce faite avant de bouger'],blocks:[['coord',['ronde','annonce']],['bloc',3],['mes','lg','Effort long : 12 min de blocs 1 et 2, version basse',[['FC à 6 min','B'],['FC à 12 min','B']]]]},
+ {id:'s3',n:'S3',t:'Bloc 3, bref contre long, Juste Pouls',goal:'je vis les deux filières (3 × 1 min intense, 12 min sans arrêt) et j’annonce ma FC à 10 près.',
+  crit:['Back sans saut, réception stable','Effort régulier sur les 12 min','Annonce faite avant de bouger'],blocks:[['coord',['ronde','annonce']],['bloc',3],['mes','bi','Juste Pouls : essai bref et intense, 3 × 1 min',[['FC après la 3e minute','A']]],['mes','lg','Effort long : 12 min de blocs 1 et 2, version basse',[['FC à 6 min','B'],['FC à 12 min','B']]]]},
  {id:'s4',n:'S4',t:'Les 3 blocs, curseurs, choix de la filière',goal:'au moins 2 mesures sur 3 dans la zone visée, et mon choix est argumenté.',
   crit:['3 blocs enchaînés sans l’enseignant','Sauts du jumping jack sur la plateforme','Annonce son réglage (H B P A)'],blocks:['tri',['coord',['chef']],'cur','vise','essai','choix']},
  {id:'s5',n:'S5',t:'S’entraîner 1 : régler sa charge',goal:'au moins 2 mesures sur 3 (A) ou 3 sur 4 (B) dans ma zone.',
@@ -12822,7 +12831,7 @@ const jpPts=(an,fc)=>{if(an==null||fc==null)return null;const e=Math.abs(an-fc);
 function ciblePts(fc,z){if(fc==null||!z)return null;const mid=(z[0]+z[1])/2;if(Math.abs(fc-mid)<=3)return 3;if(fc>=z[0]&&fc<=z[1])return 2;return Math.abs(hors(fc,z))<=5?1:0}
 /* toutes les paires annonce / FC d'une séance */
 function annonces(d){if(!d)return [];const L=[];const p=(x)=>{if(x&&num(x.an)!=null&&num(x.fc)!=null)L.push([num(x.an),num(x.fc)])};
-  (d.lg||[]).forEach(p);if(d.cu){p(d.cu.lo);p(d.cu.hi)}if(d.vs){p(d.vs[1]);p(d.vs[2])}((d.es&&d.es.m)||[]).forEach(p);if(d.rg){p(d.rg[1]);p(d.rg[2])}((d.fl&&d.fl.m)||[]).forEach(p);return L}
+  (d.bi||[]).forEach(p);(d.lg||[]).forEach(p);if(d.cu){p(d.cu.lo);p(d.cu.hi)}if(d.vs){p(d.vs[1]);p(d.vs[2])}((d.es&&d.es.m)||[]).forEach(p);if(d.rg){p(d.rg[1]);p(d.rg[2])}((d.fl&&d.fl.m)||[]).forEach(p);return L}
 function scoreSeance(sid,d,run){if(!DEFI_S.includes(sid)||!d||d.st)return {jp:0,ci:0,n:0};
   const jp=annonces(d).reduce((a,[x,y])=>a+jpPts(x,y),0);let ci=0;
   if(['s5','s6','s7'].includes(sid)){const z=zoneFor(run,filOf(run));((d.fl&&d.fl.m)||[]).forEach(x=>{const c=ciblePts(num(x&&x.fc),z);if(c)ci+=c})}
@@ -12841,9 +12850,12 @@ function badgesOf(run,mate){const se=run.seances||{};const B=[];
   return B}
 
 /* ---- AFL1 (S7 blanche, S8) : produire /8 calculé ; analyser /4 noté par le prof ---- */
+/* Filière A : la FC chute de 10 à 20 pulsations dans les secondes qui suivent l'arrêt ; pour la note, une mesure jusqu'à 5 pulsations sous la zone compte comme dans la zone. */
+const TOL_A=5;
+const zoneNote=(z,f)=>z&&f==='A'?[z[0]-TOL_A,z[1]]:z;
 function afl1(run,d){if(!d||d.st)return null;const f=filOf(run);const z=zoneFor(run,f);const M=(d.fl&&d.fl.m)||[];
   const fcs=M.map(x=>num(x&&x.fc)).filter(x=>x!=null);if(!fcs.length)return null;
-  const dz=fcs.filter(x=>inZ(x,z)).length;const zn=dz<=1?0:dz===2?1:dz===3?2:3;
+  const dz=fcs.filter(x=>inZ(x,zoneNote(z,f))).length;const zn=dz<=1?0:dz===2?1:dz===3?2:3;
   const arr=M.reduce((a,x)=>a+(num(x&&x.ar)||0),0);const co=arr===0?2:arr===1?1.5:arr<=3?1:0;
   const sec=num(getPath(d,'ob.sec')),pl=num(getPath(d,'ob.pl'));
   const prod=zn+co+(sec||0)+(pl||0);return {dz,nm:fcs.length,zn,arr,co,sec,pl,prod,complet:sec!=null&&pl!=null}}
@@ -12975,7 +12987,7 @@ const HELP={
  coord:(b)=>b[1].map(k=>'<b>'+COORD[k][0]+'</b> : '+COORD[k][1]).concat(['Ces défis ne donnent pas de points : on coche « réussi » ou « pas encore ». Tu peux le retenter à la séance suivante.']),
  tri:()=>['Pendant l’échauffement, les blocs 1, 2 et 3 enchaînés <b>seul, sans l’enseignant</b>, sans bras ni saut. Réussi = badge <b>Mémoire</b>.'],
  vise:()=>['Vise le <b>milieu</b> de la zone que tu penses choisir. Choisis ton réglage, <b>annonce ta FC</b> (Juste Pouls), 3 min de blocs, mesure.','Sous la zone : +1 curseur. Au-dessus : −1 curseur. Puis 2e essai.'],
- mes:(b)=>b[1]==='m1'?['<b>Effort 1 · 6 min sans arrêt</b> : le bloc 1 en boucle en suivant le prof, step sans réhausse, mains aux hanches, aucun saut, genou pas plus haut que la hanche.','<b>Effort 2 · 3 min</b> : le même bloc, même musique, mais les bras montent au-dessus des épaules et le genou plus haut que la hanche. Toujours aucun saut. Seuls ces 2 changements : tu vois ce qu’ils font à ta FC.','<b>Protocole oxymètre</b> : arrêt → doigt dans l’oxymètre <b>dans les 5 s</b> → lire la FC stable vers 10 s → noter. Ignore la saturation (SpO₂).','Le second mesuré du binôme a une valeur un peu plus basse : on alterne qui mesure en premier.','<b>Ressenti (0 à 10)</b> : 3 = je parle en phrases, 5 = par mots, 10 = je ne peux plus parler.']
+ mes:(b)=>b[1]==='bi'?['<b>3 × 1 min version haute</b> (bras au-dessus des épaules, propulsion, sans réhausse), 30 s de marche entre les minutes : ta première expérience de la filière A.','<b>Juste Pouls</b> : avant de partir, annonce la FC que tu auras à la fin de la 3e minute. À ± 5 = 3 pts, à ± 10 = 1 pt.','Mesure dès l’arrêt (oxymètre dans les 5 s) et compare à ta zone A. Puis compare avec l’effort long : lequel te ressemble ?']:b[1]==='m1'?['<b>Effort 1 · 6 min sans arrêt</b> : le bloc 1 en boucle en suivant le prof, step sans réhausse, mains aux hanches, aucun saut, genou pas plus haut que la hanche.','<b>Effort 2 · 3 min</b> : le même bloc, même musique, mais les bras montent au-dessus des épaules et le genou plus haut que la hanche. Toujours aucun saut. Seuls ces 2 changements : tu vois ce qu’ils font à ta FC.','<b>Protocole oxymètre</b> : arrêt → doigt dans l’oxymètre <b>dans les 5 s</b> → lire la FC stable vers 10 s → noter. Ignore la saturation (SpO₂).','Le second mesuré du binôme a une valeur un peu plus basse : on alterne qui mesure en premier.','<b>Ressenti (0 à 10)</b> : 3 = je parle en phrases, 5 = par mots, 10 = je ne peux plus parler.']
    :b[1]==='lv'?['<b>Même bloc, même musique : on ne change qu’un réglage à la fois.</b>','Série 1 : version basse. Série 2 : + propulsion (genoux sautés, tap up sautés). Série 3 : + 1 réhausse + bras au-dessus des épaules.','Récupération 2 min en mambo entre les séries. Mesure à chaque arrêt.']
    :['<b>12 min continues</b>, blocs 1 et 2 en boucle, version basse (step sans réhausse, aucun saut).','<b>Juste Pouls</b> : avant de partir, annonce la FC que tu auras à 6 min ; à 6 min, annonce celle de 12 min. À ± 5 = 3 pts, à ± 10 = 1 pt.','Arrêt de 15 s à 6 min pour la mesure (autorisé), puis on repart au signal. 12 min sans autre arrêt = badge <b>Endurant</b>.','Compare tes 2 FC à ta zone B (55 à 70 % de ta FC de réserve).'],
  bloc:()=>['Le coach compte les <b>blocs complets enchaînés sans arrêt</b> (droite puis gauche = 2 blocs) et les erreurs de pas.','<b>Réussi</b> : au moins 4 blocs de suite (2 de chaque côté) avec 2 erreurs au plus.','Touche les pas encore difficiles : ce sont eux que tu révises au ralenti.'],
@@ -13093,9 +13105,9 @@ function blockView(b,s,run,d){
     <label>Provisoire, en classe (assis, 3 min de calme) ${stp('fcr.pv',d,{step:1,min:40,max:120,start:72,chk:CHK.rep})}</label>
     <p class="small"><b>À la maison, 3 matins au réveil</b> (à remplir dès que tu les as)</p>
     <div class="reps">${[0,1,2].map(i=>`<div class="rep col"><span>Matin ${i+1}</span>${stp('fcr.m.'+i,d,{step:1,min:40,max:110,start:num(getPath(d,'fcr.pv'))||68,chk:CHK.rep})}</div>`).join('')}</div>
-    <div class="outs">${out('FC de repos retenue',fcRepos(run)!=null?R(fcRepos(run))+' /min':'–','hi')}${out('FC max (âge '+(run.age||'?')+')',fcMax(run)??'–')}</div></section>`}
-  if(ty==='mes'){const L=a3;const zz=a1==='lg'?zoneFor(run,'B'):null;const vals=(d[a1]||[]).map(x=>num(x&&x.fc));
-    const rows=L.map((r,i)=>{const fcv=num(getPath(d,a1+'.'+i+'.fc'));const an=a1==='lg'?anStp(a1+'.'+i+'.an',d,zz):'';return `<div class="srow"><b class="sl">${esc(r[0])}</b>${a1==='lv'?`<span class="pill">${esc(r[1])}</span>`:''}${an}<label>FC lue ${fcStp(a1+'.'+i+'.fc',d,zz)}</label>${a1==='lg'?jpBadge(num(getPath(d,a1+'.'+i+'.an')),fcv):''}<label class="f1">Ressenti ${rpeMini(a1+'.'+i+'.rp',d)}</label>${zz?zbadge(fcv,zz,'B'):''}</div>`}).join('');
+    <div class="outs">${out('FC de repos retenue',fcRepos(run)!=null?R(fcRepos(run))+' /min':'–','hi')}${out('FC max (âge '+(run.age||'?')+')',fcMax(run)==null?'–':fcMax(run)+(fcMax(run)>fcMaxTheo(run)?' (observée)':''))}</div></section>`}
+  if(ty==='mes'){const L=a3;const zf={lg:'B',bi:'A'}[a1];const zz=zf?zoneFor(run,zf):null;const vals=(d[a1]||[]).map(x=>num(x&&x.fc));
+    const rows=L.map((r,i)=>{const fcv=num(getPath(d,a1+'.'+i+'.fc'));const an=zf?anStp(a1+'.'+i+'.an',d,zz):'';return `<div class="srow"><b class="sl">${esc(r[0])}</b>${a1==='lv'?`<span class="pill">${esc(r[1])}</span>`:''}${an}<label>FC lue ${fcStp(a1+'.'+i+'.fc',d,zz)}</label>${zf?jpBadge(num(getPath(d,a1+'.'+i+'.an')),fcv):''}<label class="f1">Ressenti ${rpeMini(a1+'.'+i+'.rp',d)}</label>${zz?zbadge(fcv,zz,zf):''}</div>`}).join('');
     let res='';if(a1==='m1'&&vals[0]!=null&&vals[1]!=null)res=out('Écart entre les 2 efforts',(vals[1]-vals[0]>=0?'+':'')+(vals[1]-vals[0])+' /min '+(vals[1]>vals[0]?'✓':'✗'),'hi');
     if(a1==='lv'&&vals.filter(x=>x!=null).length>=2){const g2=vals[1]!=null&&vals[0]!=null?vals[1]-vals[0]:null,g3=vals[2]!=null&&vals[1]!=null?vals[2]-vals[1]:null;
       res=out('Propulsion seule',g2==null?'–':(g2>=0?'+':'')+g2+' /min')+out('Réhausse + bras en plus',g3==null?'–':(g3>=0?'+':'')+g3+' /min')+out('Levier le plus efficace',g2!=null&&g3!=null?(g2>=g3?'la propulsion':'la réhausse et les bras'):'–','hi')}
@@ -13106,7 +13118,7 @@ function blockView(b,s,run,d){
      <div class="row wrap"><label>Blocs enchaînés sans arrêt ${stp(k+'.en',d,{min:0,max:12,start:2})}</label><label>Erreurs de pas ${stp(k+'.er',d,{min:0,max:20,start:0})}</label></div>
      <p class="small"><b>Pas encore difficiles</b> (touche-les)</p><div class="seg">${BLOC[a1].map(p=>`<button class="chip sm ${df.includes(p)?'on':''}" data-tog="${k}.df" data-v="${esc(p)}">${esc(p)}</button>`).join('')}</div>
      <div class="outs">${out('Bloc '+a1,ok==null?'–':ok?'✓ réussi':'✗ à revoir','hi')}</div></section>`}
-  if(ty==='zcalc'){const zc=d.zc||{};const show=zc.vu==='1';
+  if(ty==='zcalc'){const zc=d.zc||{};const show=zc.vu==='1';const z=zonesTheo(run);
     const fields=[['mx','FC max',z&&z.max],['fr','FC de réserve',z&&z.fcr],['a0','Zone A : bas',z&&z.A[0]],['a1','Zone A : haut',z&&z.A[1]],['b0','Zone B : bas',z&&z.B[0]],['b1','Zone B : haut',z&&z.B[1]]];
     return `<section class="card"><h3>Je calcule mes zones ${who('R')}</h3>${!z?'<p class="warn small">Il manque ton âge ou ta FC de repos (« Mes zones »).</p>':''}
      <div class="reps">${fields.map(q=>{const v=num(zc[q[0]]);const good=show&&q[2]!=null&&v!=null?Math.abs(v-q[2])<=2:null;return `<div class="rep col"><span>${q[1]} ${good==null?'':good?'<span class="ok">✓</span>':'<span class="ko">✗ '+q[2]+'</span>'}</span>${stp('zc.'+q[0],d,{step:1,min:40,max:230,start:q[0]==='fr'?130:150})}</div>`}).join('')}</div>
@@ -13159,7 +13171,7 @@ function blockView(b,s,run,d){
     return `<section class="card"><h3>J’analyse ma séance ${who('R')}</h3><div class="outs">${out('Mesures dans ma zone',nm?nz+' / '+nm:'–','hi')}${out('Arrêts',ar)}</div>
      <label>Constat chiffré ${txt('an.c',d,'ex. 3 mesures sur 4 dans ma zone, 1 arrêt')}</label><label>Cause ${txt('an.k',d,'ex. série 1 sous la zone : réglage trop bas')}</label><label>Régulation ${txt('an.r',d,'ex. j’ai ajouté la propulsion en série 2')}</label></section>`}
   if(ty==='afl1'){const a=afl1(run,d);
-    return `<section class="card"><h3>Ma note « produire » (AFL1)</h3>${a?`<div class="outs">${out('Zone /3',a.zn+' ('+a.dz+'/'+a.nm+')')}${out('Continuité /2',String(a.co).replace('.',',')+' ('+a.arr+' arrêt'+(a.arr>1?'s':'')+')')}${out('Sécurité /2',a.sec==null?'?':String(a.sec).replace('.',','))}${out('Plan /1',a.pl==null?'?':String(a.pl).replace('.',','))}${out('Produire /8',String(a.prod).replace('.',',')+(a.complet?'':' (incomplet)'),'hi')}</div><p class="muted small">L’analyse (/4) est notée par le prof.</p>`:'<p class="muted">Remplis la séance de filière.</p>'}</section>`}
+    return `<section class="card"><h3>Ma note « produire » (AFL1)</h3>${a?`<div class="outs">${out('Zone /3',a.zn+' ('+a.dz+'/'+a.nm+')')}${out('Continuité /2',String(a.co).replace('.',',')+' ('+a.arr+' arrêt'+(a.arr>1?'s':'')+')')}${out('Sécurité /2',a.sec==null?'?':String(a.sec).replace('.',','))}${out('Plan /1',a.pl==null?'?':String(a.pl).replace('.',','))}${out('Produire /8',String(a.prod).replace('.',',')+(a.complet?'':' (incomplet)'),'hi')}</div><p class="muted small">L’analyse (/4) est notée par le prof.${filOf(run)==='A'?' Filière A : une mesure jusqu’à 5 pulsations sous ta zone compte dans la zone (la FC baisse dès l’arrêt).':''}</p>`:'<p class="muted">Remplis la séance de filière.</p>'}</section>`}
   if(ty==='situe')return `<section class="card"><h3>Je me situe ${who('R')}</h3>
      <p class="small"><b>AFL2 · S’entraîner</b></p>${segv('situe.a2',d,[[1,'1 · copieur-colleur'],[2,'2 · zappeur'],[3,'3 · sensitif'],[4,'4 · concepteur']])}
      <p class="small"><b>AFL3 · Coacher</b></p>${segv('situe.a3',d,[[1,'1 · absent'],[2,'2 · intermittent'],[3,'3 · disponible'],[4,'4 · incitatif']])}</section>`;
@@ -13234,10 +13246,10 @@ function say(t){if(!CH.voice||!window.speechSynthesis)return;try{const u=new Spe
 
 /* ---------- mes zones & progression ---------- */
 function zonesView(){const b=curBin();
-  return `<section class="card"><h2>Mes zones</h2><p class="muted small">Karvonen : zone = FC de repos + FC de réserve × %. FC max = 220 − âge (garçon) ou 226 − âge (fille). C’est une estimation : ton ressenti et le test de la parole restent tes repères.</p>
+  return `<section class="card"><h2>Mes zones</h2><p class="muted small">Karvonen : zone = FC de repos + FC de réserve × %. FC max = 220 − âge (garçon) ou 226 − âge (fille) : c’est une estimation, qui se trompe d’environ 10 pulsations. Si tu as déjà mesuré plus haut, c’est ta FC max observée qui est retenue. Ton ressenti et le test de la parole restent tes repères.</p>
   <div class="grid2">${b.runners.map((r,ri)=>{const z=zonesOf(r);const f=filOf(r);
    return `<div class="sub"><h3>${esc(r.prenom)}${f?' · filière '+f:''}</h3><table class="tt l"><tr><th>Âge · sexe</th><td>${esc(r.age||'?')} ans · ${r.sexe==='F'?'fille':'garçon'}</td></tr><tr><th>FC de repos</th><td>${fcRepos(r)!=null?R(fcRepos(r)):'à mesurer (S1)'}</td></tr>
-    ${z?`<tr><th>FC max · FC de réserve</th><td>${z.max} · ${z.fcr}</td></tr><tr><th>Zone A (80-95 %)</th><td><b>${z.A[0]} à ${z.A[1]}</b></td></tr><tr><th>Zone B (55-70 %)</th><td><b>${z.B[0]} à ${z.B[1]}</b></td></tr>`:''}</table>
+    ${z?`<tr><th>FC max · FC de réserve</th><td>${z.max}${z.obs?` <span class="small muted">(observée ; théorique ${z.maxTheo})</span>`:''} · ${z.fcr}</td></tr><tr><th>Zone A (80-95 %)</th><td><b>${z.A[0]} à ${z.A[1]}</b></td></tr><tr><th>Zone B (55-70 %)</th><td><b>${z.B[0]} à ${z.B[1]}</b></td></tr>`:''}</table>
     <label class="small">FC de repos donnée par le prof (si pas de mesure) <input class="in w" data-fm="${ri}" inputmode="numeric" value="${esc(r.fcrM||'')}"></label>
     <p class="small">Âge</p><div class="seg">${[14,15,16,17,18].map(a=>`<button class="chip sm ${String(r.age)===String(a)?'on':''}" data-age="${ri}|${a}">${a}</button>`).join('')}</div></div>`}).join('')}</div><button class="btn full" data-go="bin">← Retour au binôme</button></section>`}
 function lineChart(labels,series,o){o=o||{};const W=560,H=200,P=34;const all=[].concat(...series.map(s=>s.v)).filter(x=>x!=null);if(all.length<2)return '';
@@ -13425,7 +13437,7 @@ function detailModal(k,sid){
   const fcl=(arr)=>arr.map(x=>x&&x.fc!=null?esc(x.fc)+(x.rp!=null?' ('+esc(x.rp)+')':''):'·').join(' · ');
   if(d.fcr)L.push(['FC de repos','provisoire '+v(d.fcr.pv)+' · matins '+(d.fcr.m||[]).map(x=>x||'·').join(' / ')]);
   if(d.pm)L.push(['Pas réussis',esc(d.pm.join(', '))]);
-  ['m1','lv','lg'].forEach(key=>{if(d[key])L.push([{m1:'Premier effort',lv:'Test des leviers',lg:'Effort long'}[key],fcl(d[key])])});
+  ['m1','lv','bi','lg'].forEach(key=>{if(d[key])L.push([{m1:'Premier effort',lv:'Test des leviers',bi:'Essai bref et intense',lg:'Effort long'}[key],fcl(d[key])])});
   [1,2,3].forEach(i=>{const x=d['b'+i];if(x)L.push(['Bloc '+i,'enchaînés '+v(x.en)+' · erreurs '+v(x.er)+(x.df&&x.df.length?' · difficiles : '+esc(x.df.join(', ')):'')])});
   if(d.zc)L.push(['Calcul des zones',['mx','fr','a0','a1','b0','b1'].map(q=>v(d.zc[q])).join(' · ')+(d.zc.vu?' · vérifié':'')]);
   if(d.co)L.push(['Coordination',Object.entries(d.co).map(([k,x])=>(COORD[k]?COORD[k][0]:k)+' : '+(x==='1'?'réussi':x==='n'?'pas meneur':'pas encore')).join(' · ')]);
@@ -13614,7 +13626,7 @@ function demoRunner(p,rnd,nsess,flags){
   add('s1',{fcr:{pv:S(p.rep+4+E(3)),m:[S(p.rep+E(2)),S(p.rep+E(2)),S(p.rep+E(2))]},b1:{en:S(3+Math.floor(rnd()*3)),er:S(Math.floor(rnd()*3))},m1:[{fc:fc(.5),rp:'3'},{fc:fc(.68),rp:'6'}],bl:BL(0)});
   add('s2',{co:{canon:rnd()<.7?'1':'0'},b2:{en:S(3+Math.floor(rnd()*3)),er:S(Math.floor(rnd()*3)),df:rnd()<.5?['Reverse']:[]},lv:[{fc:fc(.55),rp:'4'},{fc:fc(.7),rp:'6'},{fc:fc(.82),rp:'8'}],zc:{mx:S(mx),fr:S(fcr),a0:S(Z.A[0]),a1:S(Z.A[1]),b0:S(Z.B[0]),b1:S(Z.B[1]),vu:'1'},bl:BL(1)});
   const l1=at(.6)+E(5),l2=at(.66)+E(5);
-  add('s3',{co:{ronde:'1',annonce:rnd()<.6?'1':'0'},b3:{en:S(3+Math.floor(rnd()*3)),er:S(Math.floor(rnd()*3))},lg:[mes(l1),mes(l2)],lgar:rnd()<.7?'0':'1',bl:BL(2)});
+  add('s3',{co:{ronde:'1',annonce:rnd()<.6?'1':'0'},bi:[{...mes(at(.84)+E(6)),rp:'8'}],b3:{en:S(3+Math.floor(rnd()*3)),er:S(Math.floor(rnd()*3))},lg:[mes(l1),mes(l2)],lgar:rnd()<.7?'0':'1',bl:BL(2)});
   const lo=at(.58)+E(4),hi=at(.86)+E(4),v1=mid+E(10),v2=inz();
   add('s4',{tri:rnd()<.7?'1':'0',co:{chef:flags.chef||'n'},cu:{lo:{r:{H:'0',B:'0',P:'0',A:'0'},...mes(lo)},hi:{r:{H:'1',B:'2',P:'2',A:'1'},...mes(hi)}},vs:{f:p.f,1:{r:reg(p.f),...mes(v1)},2:{r:reg(p.f),...mes(v2)}},
     es:{f:p.f,m:mesures(p.f,'s4').map(()=>mes(inz()))},ch:{f:p.f,a1:p.f==='A'?'J’aime les efforts courts et forts':'Je tiens longtemps sans m’arrêter',a2:p.f==='A'?'2 mesures sur 3 dans la zone A':'2 mesures sur 2 dans la zone B',a3:J(['Préparer le cross','M’entretenir','Améliorer mon cardio','Préparer un concours']),rep:J(['6/2','4/4','4/4','2/6'])},bl:BL(3)});
