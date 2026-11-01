@@ -99,7 +99,7 @@ const prenomDe=n=>{const w=String(n||'').trim().split(/\s+/);const pre=w.filter(
 const nomDe=n=>{const w=String(n||'').trim().split(/\s+/);const up=w.filter(x=>x===x.toUpperCase()&&/[A-ZÀ-Ý]/.test(x));return up.length?up.join(' '):(w.length>1?w[w.length-1]:'')};
 function slug(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'').slice(0,24)}
 function nomFichier(classe,eleve,sid,suffixe){const nom=nomDe(eleve),pre=prenomDe(eleve);
-  return [slug(classe)||'Classe',(slug(nom)+slug(pre).charAt(0)).toUpperCase()||'ELEVE',String(sid).toUpperCase()].join('_')+(suffixe||'')+'.json'}
+  return [slug(classe)||'Classe',(slug(nom).toUpperCase()+(pre?'_'+slug(pre):''))||'ELEVE' /* prénom complet : deux élèves de même nom ne doivent pas donner le même fichier */,String(sid).toUpperCase()].join('_')+(suffixe||'')+'.json'}
 /* ---- résumé d'une séance (fichier JSON envoyé au prof) ---- */
 function resumeSeance(run,sid){const d=run.seances&&run.seances[sid];if(!d)return null;const [t,n]=tenus(sid,d,run);const z=zonesOf(run);const f=filOf(run);
   const sc=scoreSeance(sid,d,run);const a=SBY[sid].eval?afl1(run,d):null;
