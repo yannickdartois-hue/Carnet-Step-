@@ -58,3 +58,4 @@ Les fichiers de la nouvelle appli **sont** les sources : rien à fabriquer.
 
 ## Pouls compté (secours de l'oxymètre)
 `eps-pouls.js` (module commun aux applis EPS) et `pouls-step.js` ajoutent sous chaque case « FC lue » un bouton « Pas d'oxymètre ? Compter » : 15 s comptées au bip, battements × 4. La FC comptée est aussi notée en `….fcc` (ex. `m1.0.fcc`) ; le repère « compté à la main » ne vaut que si la FC lue est égale à cette valeur (il tombe si la case est corrigée à l'oxymètre). Le calcul des points et de la note n'est pas modifié.
+Outil prof : la fiche séance signale « ⚠ FC comptées à la main » ; une alerte apparaît si des FC de S7 ou S8 ont été comptées (la note de zone repose dessus) ; les deux exports CSV ajoutent une colonne à la fin.

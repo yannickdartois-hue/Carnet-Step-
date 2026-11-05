@@ -152,9 +152,15 @@ function alertes(c){const L=SESS,K=eleves(c);const out=[];
     const ab=L.filter(s=>e.seances[s.id]&&e.seances[s.id].st==='abs').length;if(ab>=2)out.push(['abs',`${nm(e)} : ${ab} absences`]);
     L.forEach(s=>{const ct=ctrlDe(k,s.id);if(ct&&ct.err!=null&&ct.err>8)out.push(['coach',`${s.n} : ta mesure de ${nm(e)} diffère de ${fc(ct.err)} % de la FC notée par son coach${e.coach[s.id]?' ('+esc(e.coach[s.id].n)+')':''}`])});
     const fx=[];L.forEach(s=>{const d=e.seances[s.id];if(!d)return;const w=o=>{if(!o||typeof o!=='object')return;for(const q in o){if(q==='fc'){const v=num(o[q]);if(v!=null&&(v<45||v>230))fx.push(s.n)}else w(o[q])}};w(d)});if(fx.length)out.push(['zone',`${nm(e)} : FC invraisemblable (moins de 45 ou plus de 230) en ${[...new Set(fx)].join(', ')} : vérifie la mesure`]);
+    ['s7','s8'].forEach(sid=>{const cm=comptees(e.seances[sid]);if(cm.length)out.push(['zone',`${nm(e)} : ${sid.toUpperCase()}${sid==='s8'?' (évaluation)':' (blanche)'} : ${cm.length} FC comptée${cm.length>1?'s':''} à la main sans oxymètre (± 4 à 8) : la note de zone repose dessus, vérifie`])});
     const rp=done.map(s=>num((e.seances[s.id].bl||{}).rpe)).filter(x=>x!=null);if(rp.length>=3&&rp.slice(-3).every(x=>x>=9))out.push(['rpe',`${nm(e)} : effort ressenti 9-10 sur ses 3 dernières séances`]);
     if(done.length>=3&&!done.some(s=>(e.seances[s.id].bl||{}).reu))out.push(['coach',`${nm(e)} : son coach n’a jamais écrit « Ta réussite » (${done.length} séances)`]);
   });return out}
+/* FC comptées à la main (pouls assisté de l'appli élève, en secours de l'oxymètre) : champ « fcc » égal à la FC lue */
+const FCC_NOM={m1:'Efforts S1',lv:'Leviers',bi:'Bref et intense',lg:'Effort long',cu:'Curseurs',vs:'Viser le milieu',es:'Essai de filière',rg:'Réglage',fl:'Séance de filière'};
+function comptees(d){const out=[];(function w(o,ch){if(!o||typeof o!=='object')return;
+  if(o.fc!=null&&o.fcc!=null&&num(o.fc)!=null&&num(o.fc)===num(o.fcc))out.push({nom:FCC_NOM[ch[0]]||ch[0],fc:num(o.fc)});
+  for(const q in o)if(o[q]&&typeof o[q]==='object')w(o[q],ch.concat(q))})(d,[]);return out}
 const ICA={qr:'📵',ko:'🎯',zone:'✎',abs:'🚫',coach:'⏱',rpe:'💡'};
 const heat=r=>r>=0.75?'h3':r>=0.5?'h2':r>=0.25?'h1':'h0';
 /* signe en plus de la couleur (daltonisme : rouge et vert se confondent pour 8 % des garçons) */
@@ -388,6 +394,7 @@ function detail(k,sid){const e=P.eleves[k];const d=e.seances[sid];const s=SBY[si
   if(d.an)L.push(['Analyse',[d.an.c,d.an.k,d.an.r].map(v).join('<br>')]);
   if(d.situe)L.push(['Se situe','AFL2 degré '+v(d.situe.a2)+' · AFL3 degré '+v(d.situe.a3)]);
   if(d.ad)L.unshift(['Présence','pratique adaptée (tolérance de 6 pulsations)']);if(d.st)L.unshift(['Présence',ST_TXT[d.st]+(d.mot?' · '+esc(d.mot):'')+(bl.role?' · rôle : '+esc(bl.role):'')]);if(d.cx)L.unshift(['Coach remplaçant',esc(d.cx.n)+' · '+esc(WHY_TXT[d.cx.why]||'')]);
+  {const cm=comptees(d);if(cm.length)L.unshift(['⚠ FC comptées à la main',cm.map(x=>esc(x.nom)+' '+x.fc).join(' · ')+'<br><small>pas d’oxymètre : comptage 15 s × 4, précision ± 4 à 8</small>'])}
   const a=s.eval||sid==='s7'?afl1(run,d):null;const pe=pronoErrD(d);
   modal(`<h2>${esc(e.full)} · ${s.n}</h2><p class="muted small">${f?'Filière '+f+' · zone '+(z?z[0]+'-'+z[1]:'?')+' · ':''}réussites ${n?t+'/'+n:'–'}${a?' · produire '+fc(a.prod)+'/8':''}</p>
    <table class="tt l">${L.map(l=>`<tr><th>${l[0]}</th><td>${l[1]}</td></tr>`).join('')}
@@ -456,13 +463,13 @@ function vExport(){return `<section class="card"><h2>Exporter · ${esc(P.classe|
   <div class="sub"><h3>Bilan et note</h3><p class="small muted">Une ligne par élève : filière, zone, réussites par séance, ★, défis, AFL1 (blanche et évaluation), AFL2, AFL3, total /20.</p><button class="btn pri" data-act="csv" data-v="bilan">Télécharger</button></div>
   <div class="sub"><h3>Séances</h3><p class="small muted">Une ligne par élève et par séance : statut, réussites, écart à la zone, effort, charge, coach, réussite, conseil.</p><button class="btn pri" data-act="csv" data-v="seances">Télécharger</button></div></div></section>`}
 function exporter(type){if(!P.classe)return toast('Choisis une classe.');const cy='S',L=SESS;let rows;
-  if(type==='bilan'){rows=[['Classe','Nom','Prénom','Sexe','Âge','FC repos','FC max','Filière','Zone bas','Zone haut','Réussites','Tentées','%','Degré AFL2',...L.map(s=>s.n+' réussites'),...L.map(s=>s.n+' ★AFL2'),...L.map(s=>s.n+' ★AFL3'),'Juste Pouls','Cible','Badges','Coordination','Blanche S7 produire /8','S8 zone /3','S8 continuité /2','S8 sécurité /2','S8 plan /1','S8 produire /8','Analyse /4','AFL1 /12','Répartition','AFL2','AFL3','Total /20','Retards','Oublis de tenue']];
+  if(type==='bilan'){rows=[['Classe','Nom','Prénom','Sexe','Âge','FC repos','FC max','Filière','Zone bas','Zone haut','Réussites','Tentées','%','Degré AFL2',...L.map(s=>s.n+' réussites'),...L.map(s=>s.n+' ★AFL2'),...L.map(s=>s.n+' ★AFL3'),'Juste Pouls','Cible','Badges','Coordination','Blanche S7 produire /8','S8 zone /3','S8 continuité /2','S8 sécurité /2','S8 plan /1','S8 produire /8','Analyse /4','AFL1 /12','Répartition','AFL2','AFL3','Total /20','Retards','Oublis de tenue','S8 FC comptées à la main']];
     eleves().forEach(k=>{const e=P.eleves[k];if(!e)return;const run=runOf(e);const [TT,N]=totaux(e);const f=filOf(run);const z=zonesOf(run);const b7=afl1(run,e.seances.s7),e8=afl1(run,e.seances.s8);const a2=num(e.afl2),a3=num(e.afl3),an=num(e.ana);const a1=e8&&an!=null?e8.prod+an:null;const sc=scoreRun(run);
       rows.push([e.classe,e.nom,e.prenom,e.sexe||'',e.age||'',z?z.rep:'',z?z.max:'',f||'',f&&z?z[f][0]:'',f&&z?z[f][1]:'',TT,N,N?R(100*TT/N):'',degreeOf(TT,N)||'',...L.map(s=>{const x=tenR(run,s.id);return x[1]?x[0]+'/'+x[1]:(e.seances[s.id]&&e.seances[s.id].st)||''}),...L.map(s=>starOf(k,s.id).a2?1:''),...L.map(s=>starOf(k,s.id).a3?1:''),
-        sc.jp,sc.ci,badgesOf(run,null).map(b=>BADGES.find(x=>x[0]===b)[1]).join(' '),coordOf(run).map(c=>COORD[c][0]).join(' '),b7?b7.prod:'',e8?e8.zn:'',e8?e8.co:'',e8&&e8.sec!=null?e8.sec:'',e8&&e8.pl!=null?e8.pl:'',e8?e8.prod:'',e.ana||'',a1!=null?a1:'',AFLMAX(cy,e).join('/'),e.afl2||'',e.afl3||'',a1!=null&&a2!=null&&a3!=null?R((a1+a2+a3)*10)/10:'',...tenueRetard(k).map(x=>x||'')])})}
-  else{rows=[['Classe','Élève','Séance','Date','Reçu par','Statut','Réussites','Tentées','Écart à la zone (/min)','Effort (RPE)','Charge (UA)','Juste Pouls','Cible','Coach','Coach remplaçant','Pratique adaptée','Réussite','Conseil','Décision','Prochaine fois']];
+        sc.jp,sc.ci,badgesOf(run,null).map(b=>BADGES.find(x=>x[0]===b)[1]).join(' '),coordOf(run).map(c=>COORD[c][0]).join(' '),b7?b7.prod:'',e8?e8.zn:'',e8?e8.co:'',e8&&e8.sec!=null?e8.sec:'',e8&&e8.pl!=null?e8.pl:'',e8?e8.prod:'',e.ana||'',a1!=null?a1:'',AFLMAX(cy,e).join('/'),e.afl2||'',e.afl3||'',a1!=null&&a2!=null&&a3!=null?R((a1+a2+a3)*10)/10:'',...tenueRetard(k).map(x=>x||''),comptees(e.seances.s8).length||''])})}
+  else{rows=[['Classe','Élève','Séance','Date','Reçu par','Statut','Réussites','Tentées','Écart à la zone (/min)','Effort (RPE)','Charge (UA)','Juste Pouls','Cible','Coach','Coach remplaçant','Pratique adaptée','Réussite','Conseil','Décision','Prochaine fois','FC comptées à la main']];
     eleves().forEach(k=>{const e=P.eleves[k];if(!e)return;const run=runOf(e);L.forEach(s=>{const d=e.seances[s.id];if(!d)return;const r=e.recu[s.id]||{};const [t,n]=tenR(run,s.id);const bl=d.bl||{};const c=e.coach[s.id];const sc=scoreSeance(s.id,d,run);
-      const sm=statut(k,s.id);rows.push([e.classe,e.full,s.n,r.date||'',r.src==='qr'?'QR':'fichier',sm.manuel?STATUTS[sm.c]:d.st?ST_TXT[d.st]:'présent',n?t:'',n||'',(x=>x==null?'':R(x))(ecartOf(s.id,d,run)),bl.rpe||'',chargeOf(d)||'',sc.jp||'',sc.ci||'',c?c.n:'',c&&c.rep?'oui':'',d.ad?'oui':'',bl.reu||'',bl.con||'',DEC_TXT[bl.dc]||'',bl.nx||''])})})}
+      const sm=statut(k,s.id);rows.push([e.classe,e.full,s.n,r.date||'',r.src==='qr'?'QR':'fichier',sm.manuel?STATUTS[sm.c]:d.st?ST_TXT[d.st]:'présent',n?t:'',n||'',(x=>x==null?'':R(x))(ecartOf(s.id,d,run)),bl.rpe||'',chargeOf(d)||'',sc.jp||'',sc.ci||'',c?c.n:'',c&&c.rep?'oui':'',d.ad?'oui':'',bl.reu||'',bl.con||'',DEC_TXT[bl.dc]||'',bl.nx||'',comptees(d).length||''])})})}
   telecharger('Step_'+slug(P.classe)+'_'+type+'.csv',csv(rows))}
 
 /* ---------- Évènements ---------- */
