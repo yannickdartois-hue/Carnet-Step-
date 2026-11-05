@@ -55,3 +55,6 @@ Les fichiers de la nouvelle appli **sont** les sources : rien à fabriquer.
 - v3 (29/10/2026) : version démo, défis de coordination S2-S3, badge Chef d’orchestre.
 - 25-26/10/2026 : charte v1 (thème clair imposé, couleur step, polices embarquées), cache hors ligne propre à l’appli.
 - v1 (12/10/2026) : première version.
+
+## Pouls compté (secours de l'oxymètre)
+`eps-pouls.js` (module commun aux applis EPS) et `pouls-step.js` ajoutent sous chaque case « FC lue » un bouton « Pas d'oxymètre ? Compter » : 15 s comptées au bip, battements × 4. La FC comptée est aussi notée en `….fcc` (ex. `m1.0.fcc`) ; le repère « compté à la main » ne vaut que si la FC lue est égale à cette valeur (il tombe si la case est corrigée à l'oxymètre). Le calcul des points et de la note n'est pas modifié.
