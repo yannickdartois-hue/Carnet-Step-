@@ -223,6 +223,7 @@ function scannerQR(onObj,titre,aide){let P={tag:null,n:0,parts:{}},fin=null;
 function recevoirClasse(o){
   if(o.t!=='C')throw new Error('Ce n’est pas le QR de la classe.');
   const cfg={classe:o.c,cy:'S',eleves:o.l||[],sexes:o.x||[],ages:o.g||[],lien:o.u||'',k:o.k||''};
+  if(window.EPSCode)EPSCode.memoriserCle(o.c,o.cc);
   ROOT.classes[o.c]=cfg;ecrireRoot();       /* les autres groupes de la classe recevront la nouvelle liste à leur ouverture */
   if(!G||(G.runners.length&&G.classe&&G.classe!==o.c)){setTimeout(async()=>{if(G){await verrouiller();render()}codeNouveau(o.c,cfg.cy)},400);return 'Classe '+o.c+' enregistrée.'}
   G.cfg=JSON.parse(JSON.stringify(cfg));G.classe=o.c;if(!G.runners.length)G.cy=cfg.cy;save();render();
@@ -482,3 +483,8 @@ return `<section class="card"><h3>Conseils</h3>${D.map(([t,x])=>`<details class=
 
 /* chrono qui reprend après rechargement : on rouvre son écran */
 function chOuvrir(){V.tab='chrono'}
+
+/* Code du cours (eps-code.js, commun) : la saisie ne s’ouvre qu’en cours, avec le code à 4 chiffres du professeur (2 h). */
+if(window.EPSCode)EPSCode.eleve({app:'spe',classe:()=>G&&G.classe||'',seance:()=>G?String(V.sid||''):'',seances:()=>G?sessOf(G.cy).map(s=>s.id):[],nom:s=>(SBY[s]||{n:s}).n,
+  ouvrir:s=>{if(!G)return;V.sid=s;V.tab='seance';V.ri=0;V.cur=0;V.ph='piste';V.presOpen=false;G.jours=G.jours||{};G.jours[today()]=s;save();render()},
+  actif:()=>!!G&&['seance','moi','chrono'].includes(V.tab),libreSel:'[data-tab],[data-ph],[data-ri],[data-sess],[data-cur],[data-calc]',libre:['calc','closem','qrnav'],demo:()=>DEMO});
