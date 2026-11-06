@@ -15,9 +15,9 @@ const CURS=[['H','Hauteur',['sans réhausse','1 réhausse','2 réhausses']],['B'
 
 /* ---- séances (Seconde, 8 séances) ---- */
 const SESS=[
- {id:'s1',n:'S1',t:'Sécurité, FC de repos, bloc 1',goal:'je fais le bloc 1 en suivant le prof, et ma 2e FC est plus haute que la 1re.',
+ {id:'s1',n:'S1',t:'Sécurité, FC de repos et bloc 1',goal:'je fais le bloc 1 en suivant le prof, et ma 2e FC est plus haute que la 1re.',
   crit:['Pied entier posé, sans bruit','Descend toujours en arrière','Reste sur le temps de la musique'],blocks:['fcr',['bloc',1],['mes','m1','Premier effort, première mesure',[['Effort 1 · 6 min de bloc 1, mains aux hanches, sans saut','basse'],['Effort 2 · 3 min de bloc 1, bras au-dessus des épaules, genou plus haut que la hanche','haute']]]]},
- {id:'s2',n:'S2',t:'Bloc 2 et test des leviers',goal:'je sais dire quel réglage me fait gagner le plus de pulsations.',
+ {id:'s2',n:'S2',t:'Bloc 2, rappel du bloc 1, test des leviers',goal:'je sais dire quel réglage me fait gagner le plus de pulsations.',
   crit:['Jamais de descente en avant (reverse)','Regard devant, pas sur ses pieds','Ne change qu’un réglage à la fois'],blocks:[['coord',['canon']],['bloc',2],['mes','lv','Test des leviers : 3 × 3 min de bloc 1',[['Série 1 · step sans réhausse, mains aux hanches, aucun saut','version basse'],['Série 2 · + propulsion (genoux et tap up sautés)','+ propulsion'],['Série 3 · + propulsion, 1 réhausse, bras au-dessus des épaules','+ réhausse + bras']]],'zcalc']},
  {id:'s3',n:'S3',t:'Bloc 3, bref contre long, Juste Pouls',goal:'je vis les deux filières (3 × 1 min intense, 12 min sans arrêt) et j’annonce ma FC à 10 près.',
   crit:['Back sans saut, réception stable','Effort régulier sur les 12 min','Annonce faite avant de bouger'],blocks:[['coord',['ronde','annonce']],['bloc',3],['mes','bi','Juste Pouls : essai bref et intense, 3 × 1 min',[['FC après la 3e minute','A']]],['mes','lg','Effort long : 12 min de blocs 1 et 2, version basse',[['FC à 6 min','B'],['FC à 12 min','B']]]]},
@@ -27,7 +27,7 @@ const SESS=[
   crit:['Échauffement progressif et complet','Ne change qu’un curseur à la fois','Continuité : pas d’arrêt hors mesures'],blocks:['warm',['coord',['chef']],'perso','regl',['fil','s5']]},
  {id:'s6',n:'S6',t:'S’entraîner 2 : le coach lit l’effort',goal:'mon coach relève toutes mes mesures et me donne 2 conseils utiles.',
   crit:['Coach : oxymètre dans les 5 s','Coach : conseil = constat + action','Pratiquant : pied entier, gainage'],blocks:['warm',['coord',['chef']],['fil','s6'],'obs']},
- {id:'s7',n:'S7',t:'Répétition générale (25 min)',goal:'3 mesures sur 4 dans ma zone et une analyse complète.',
+ {id:'s7',n:'S7',t:'Répétition générale au format de l’évaluation (25 min)',goal:'3 mesures sur 4 dans ma zone et une analyse complète.',
   crit:['Plan écrit avant de commencer','Réglage modifié si hors zone','Analyse : constat, cause, régulation'],blocks:['warm',['coord',['chef']],'plan','regl',['fil','eval'],'analyse']},
  {id:'s8',n:'S8',t:'Évaluation',goal:'je réalise ma séance comme prévu et je l’analyse.',eval:true,
   crit:['Échauffement seul et complet','Coach précis : FC, arrêts, réglages','Séance réalisée comme annoncée'],blocks:['warm','plan',['fil','eval'],'obs','afl1','analyse','situe']}
