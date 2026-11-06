@@ -370,5 +370,5 @@ header button.bseance .pt{position:absolute;right:-4px;top:-4px;width:14px;heigh
 
 /* Question de bilan propre à chaque séance */
 .qbilan{margin:0 0 6px;font-weight:700;font-size:18px;color:var(--acc2)}
-.nonenvoye.av{display:flex;align-items:center;gap:12px}.nonenvoye.av img{height:72px;width:auto;flex:none}
+.nonenvoye.av{display:flex;align-items:center;gap:12px}.nonenvoye.av img{height:96px;width:auto;flex:none}
 @media print{.nonenvoye.av img{display:none}}

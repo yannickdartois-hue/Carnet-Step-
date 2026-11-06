@@ -33,7 +33,8 @@
       '@media (max-width:420px){#eps-rappel .r-tete img{height:90px}}'+
       '@media print{#eps-rappel{display:none}}';
     var d=document.createElement('div');d.id='eps-rappel';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');d.setAttribute('aria-labelledby','eps-rappel-t');
-    var h2='<h2 id="eps-rappel-t">'+esc(RAPPEL.titre)+'</h2>';
+    // Avec l'avatar, l'emoji du titre fait doublon : on le retire.
+    var h2='<h2 id="eps-rappel-t">'+esc(AV?RAPPEL.titre.replace(/^\S+\s+/,''):RAPPEL.titre)+'</h2>';
     d.innerHTML='<div class="r-fen">'+(AV?'<div class="r-tete"><img src="'+esc(AV)+'" alt="">'+h2+'</div>':h2)+RAPPEL.lignes.map(function(l){return '<p>'+esc(l)+'</p>'}).join('')+
       '<p class="r-src">'+esc(RAPPEL.source)+'</p><button type="button">'+esc(RAPPEL.bouton)+'</button></div>';
     d.querySelector('button').onclick=function(){d.remove();st.remove()};
