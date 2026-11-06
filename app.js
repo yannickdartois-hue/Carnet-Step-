@@ -19,6 +19,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const jour=ts=>{if(!ts)return today();const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const heure=t=>new Date(t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+const AVT=(n,b,c)=>window.EPSAvatar?EPSAvatar(n,b,c):'';
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),3000)}
 function modal(html){$('#modal-body').innerHTML=icons(html);$('#modal').classList.add('on')}
 function closeModal(){$('#modal').classList.remove('on');liveStop();if(RQ.h){clearInterval(RQ.h);RQ.h=null}QRS=null;CODE_CB=null}
@@ -282,7 +283,7 @@ function vChoix(){
   const Gs=Object.entries(ROOT.groupes).sort((a,b)=>(a[1].classe||'').localeCompare(b[1].classe||'','fr')||(b[1].vu||0)-(a[1].vu||0));
   const parC={};Gs.forEach(([id,g])=>(parC[g.classe||'Sans classe']=parC[g.classe||'Sans classe']||[]).push([id,g]));
   const C=Object.keys(ROOT.classes).sort();
-  return `<section class="intro"><h1>Qui utilise la tablette ?</h1><p>Chaque groupe ouvre son carnet avec son code secret.</p></section>
+  return `<section class="intro intro-av"><div><h1>Qui utilise la tablette ?</h1><p>Chaque groupe ouvre son carnet avec son code secret.</p></div>${AVT('step','Bonne séance de step !','droite')}</section>
   ${Gs.length?Object.entries(parC).map(([c,L])=>`<section class="card"><h3>${esc(c)}</h3><div class="grid">${L.map(([id,g])=>{const ne=g.nonEnv&&g.nonEnv.length;
     return ` <button class="bincard ${ne?'nonenv':''}" data-act="choisir" data-v="${id}"><b>${g.noms&&g.noms.length?g.noms.map(esc).join(' · '):'Groupe à compléter'}</b><span class="muted small">${g.clair?'à protéger par un code':'🔒 code secret du groupe'}</span>${ne?`<span class="warn small">⚠ ${g.nonEnv.join(', ')} non envoyée${g.nonEnv.length>1?'s':''}</span>`:''}</button>`}).join('')}</div></section>`).join(''):'<p class="muted center">Aucun groupe sur cette tablette pour l’instant.</p>'}
   ${ancien()?`<section class="card todo"><h3>Ancien carnet numérique</h3><p class="small">${ancien()} binôme${ancien()>1?'s':''} de l’ancienne appli trouvé${ancien()>1?'s':''} sur cette tablette. Reprenez-les ici : chaque binôme choisira ensuite son code secret.</p><button class="btn pri" data-act="migrer">Reprendre les binômes de l’ancien carnet</button></section>`:''}
@@ -327,7 +328,8 @@ function vEnvoi(){
   const lignes=b.runners.map((r,k)=>{const ok=hasData(r.seances&&r.seances[sid])&&!(r.imp&&r.imp[sid]);
     return `<li class="${ok?'':'manque'}"><span class="lettre">${LET[k]}</span><span><b>${esc(r.prenom)} ${esc(r.nom)}</b><small>${ok?esc(resumeTxt(r,sid)):'rien de saisi'}</small></span>${ok?'<em>✓</em>':''}</li>`}).join('');
   const F=fichiers([sid]);const autres=nonEnvoyees().filter(x=>x.id!==sid);
-  return `<section class="card"><h2>Fin de séance ${s.n}</h2><p class="muted small">${esc(s.t)}</p><ul class="envoi">${lignes}</ul>
+  const fait=st==='sent';
+  return `<section class="card"><h2>Fin de séance ${s.n}</h2><p class="muted small">${esc(s.t)}</p>${F.length?AVT(fait?'bravo':'envoyer',fait?'Séance envoyée. Bravo, à la prochaine !':'Dernière étape : envoie ta séance au prof.'):''}<ul class="envoi">${lignes}</ul>
    ${b.runners.some(r=>!hasData(r.seances&&r.seances[sid]))?'<p class="warn small">Chaque élève remplit sa séance (son prénom en haut de l’écran Séance). Un absent ? Marque-le « absent » : le prof le saura.</p>':''}
    <div class="gros"><button class="btn pri big" data-act="enligne" ${F.length?'':'disabled'}>Envoyer la séance en ligne</button>${ev.fichier?`<p class="ok small">✓ envoyée à ${heure(ev.fichier)}</p>`:''}
    <button class="btn big" data-act="qr" ${F.length?'':'disabled'}>Montrer les QR codes au prof</button>${ev.qr?`<p class="ok small">✓ QR montrés à ${heure(ev.qr)}</p>`:''}
