@@ -19,7 +19,8 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const jour=ts=>{if(!ts)return today();const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const heure=t=>new Date(t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-/* Personnage du prof : 2 au plus par séance (rappel téléphone à l'ouverture, bravo après l'envoi).
+/* Personnage du prof : 2 au plus par séance (rappel téléphone à l'ouverture, bravo après l'envoi),
+   plus des avatars de situation, seulement quand quelque chose sort de l'ordinaire (séance non envoyée, élève blessé).
    Questions de bilan : un message par séance (ajout à côté du contenu des séances, qui n'est pas modifié). */
 const AV_BILAN={s1:'Premier bilan : compare tes deux FC. La 2e est-elle plus haute ?',s2:'Quel réglage t’a fait gagner le plus de pulsations ? Écris-le.',
   s3:'Bref ou long : lequel as-tu préféré ? Ton annonce était-elle à 10 près ?',s4:'Combien de mesures dans ta zone ? Explique ton choix de filière.',
@@ -282,7 +283,7 @@ function render(){
   $('#onglets').innerHTML=O.map(o=>`<button data-tab="${o[0]}" class="${V.tab===o[0]?'ici':''}${o[0]==='envoi'&&ne.length?' alerte':''}">${TI[o[0]]}<b>${o[1]}</b></button>`).join('');
   $('#onglets').hidden=!b.runners.length;
   const views={seance:sessView,moi:()=>{V.v='prog';return zonesView()+progView()+conseilsView()},chrono:chronoView,envoi:vEnvoi,groupe:vGroupe};
-  const rappel=ne.length&&!['envoi','groupe','seance'].includes(V.tab)&&!(ne.length===1&&ne[0].id===V.sid&&V.tab==='seance')?`<button class="nonenvoye" data-tab="envoi">⚠ ${ne.map(s=>s.n).join(', ')} pas encore envoyée${ne.length>1?'s':''} au professeur — touche ici pour envoyer</button>`:'';
+  const rappel=ne.length&&!['envoi','groupe','seance'].includes(V.tab)&&!(ne.length===1&&ne[0].id===V.sid&&V.tab==='seance')?`<button class="nonenvoye av" data-tab="envoi">${window.EPSAvatar?'<img src="img/avatars/envoyer.webp" alt="" aria-hidden="true">':''}<span>⚠ ${ne.map(s=>s.n).join(', ')} pas encore envoyée${ne.length>1?'s':''} au professeur — touche ici pour envoyer</span></button>`:'';
   $('#main').innerHTML=icons((DEMO?bandeauDemo():'')+rappel+(views[V.tab]||sessView)());
   document.documentElement.style.setProperty('--hh',$('header').offsetHeight+'px');
 }
