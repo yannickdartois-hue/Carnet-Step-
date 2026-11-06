@@ -368,7 +368,5 @@ header button.bseance .pt{position:absolute;right:-4px;top:-4px;width:14px;heigh
 .badge{display:inline-block;background:#fef3c7;border-radius:999px;padding:2px 8px;margin:2px 2px;font-weight:700;font-size:max(13px,var(--fs-min,15px))}
 :root[data-theme="dark"] .anl,:root[data-theme="dark"] .defibox{background:#3a1d12;border-color:#7c2d12}:root[data-theme="dark"] .badge{background:#422006}
 
-/* Personnage du prof (eps-avatars.js) */
-.intro-av{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}.intro-av .eps-av{--av-h:180px}
-.card.thin .eps-av{--av-h:96px}.card.thin .eps-av .eps-bulle{max-width:none}.card.thin .eps-av .eps-bulle .small{font-weight:400}
-@media (max-width:560px){.intro-av .eps-av{--av-h:130px}}
+/* Question de bilan propre à chaque séance */
+.qbilan{margin:0 0 6px;font-weight:700;font-size:18px;color:var(--acc2)}

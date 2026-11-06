@@ -88,11 +88,11 @@ function sessView(){
   const qrBtn='<button class="btn pri big full" data-act="finseance">Envoyer la séance au prof</button>';
   const phases=`<div class="seg big phase"><button class="chip ${ph==='piste'?'on':''}" data-ph="piste">Pendant la pratique</button><button class="chip ${ph==='fin'?'on':''}" data-ph="fin">Fin de séance · 5 min</button></div>`;
   if(d.st==='abs')return head+`<section class="card"><h3>${esc(run.prenom)} est absent(e) à cette séance</h3><p class="muted">Rien à remplir. La séance ne compte pas dans ses réussites. L’envoi de fin de séance le signale au prof.</p></section>`+qrBtn;
-  if(d.st==='bl')return head+`<section class="card"><h3>${esc(run.prenom)} ne pratique pas aujourd’hui</h3>${AVT('blesse','Tu ne pratiques pas, mais tu as un rôle : choisis-le ci-dessous.')}<p class="muted">Blessé ou dispensé : je tiens un rôle et je remplis mon bilan de rôle.</p>
+  if(d.st==='bl')return head+`<section class="card"><h3>${esc(run.prenom)} ne pratique pas aujourd’hui</h3><p class="muted">Blessé ou dispensé : je tiens un rôle et je remplis mon bilan de rôle.</p>
    <label>Ce qui m’empêche de pratiquer ${txt('mot',d)}</label><p class="small"><b>✎ Mon rôle aujourd’hui</b></p>${segv('bl.role',d,[['coach','coach supplémentaire'],['chrono','chrono et sono'],['secu','observateur sécurité'],['oxy','oxymètres']])}
    <label>✎ Ce que j’ai observé / ce que j’ai bien fait dans mon rôle ${txt('bl.nx',d)}</label></section>`+qrBtn;
   const blocs=s.blocks.map(bk).filter(B=>phaseOf(B)===ph);
-  if(ph==='fin')return head+phases+`<section class="card thin">${AVT('bilan',(AV_BILAN[s.id]?esc(AV_BILAN[s.id])+'<br><span class="small">':'<span>')+'<b>Après le retour au calme, 5 minutes :</b> chacun remplit son bilan, puis le binôme envoie la séance.</span>')}</section>
+  if(ph==='fin')return head+phases+`<section class="card thin">${AV_BILAN[s.id]?'<p class="qbilan">'+esc(AV_BILAN[s.id])+'</p>':''}<p class="small"><b>Après le retour au calme, 5 minutes :</b> chacun remplit son bilan, puis le binôme envoie la séance.</p></section>
   ${stepsBar(s,d)}${blocs.map(B=>stepWrap(withHelp(blockView(B,s,run,d),B[0],B,s),B,s,d)).join('')}
   ${stepWrap(withHelp(bilanView(s,run,d,t,n),'bilan',[],s),['bilan'],s,d)}`+qrBtn;
   return head+phases+`<div class="coachline ${co.need?'warn':''}"><span>Coach : <b>${co.n?esc(co.n):'à choisir'}</b>${co.rep?` <span class="tag">remplaçant · ${esc(WHY_TXT[co.why]||'')}</span>`:''}</span>
