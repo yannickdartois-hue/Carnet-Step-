@@ -92,7 +92,7 @@ function sessView(){
    <label>Ce qui m’empêche de pratiquer ${txt('mot',d)}</label><p class="small"><b>✎ Mon rôle aujourd’hui</b></p>${segv('bl.role',d,[['coach','coach supplémentaire'],['chrono','chrono et sono'],['secu','observateur sécurité'],['oxy','oxymètres']])}
    <label>✎ Ce que j’ai observé / ce que j’ai bien fait dans mon rôle ${txt('bl.nx',d)}</label></section>`+qrBtn;
   const blocs=s.blocks.map(bk).filter(B=>phaseOf(B)===ph);
-  if(ph==='fin')return head+phases+`<section class="card thin">${AVT('bilan','<b>Après le retour au calme, 5 minutes :</b> chacun remplit son bilan, puis le binôme envoie la séance.')}</section>
+  if(ph==='fin')return head+phases+`<section class="card thin">${AVT('bilan',(AV_BILAN[s.id]?esc(AV_BILAN[s.id])+'<br><span class="small">':'<span>')+'<b>Après le retour au calme, 5 minutes :</b> chacun remplit son bilan, puis le binôme envoie la séance.</span>')}</section>
   ${stepsBar(s,d)}${blocs.map(B=>stepWrap(withHelp(blockView(B,s,run,d),B[0],B,s),B,s,d)).join('')}
   ${stepWrap(withHelp(bilanView(s,run,d,t,n),'bilan',[],s),['bilan'],s,d)}`+qrBtn;
   return head+phases+`<div class="coachline ${co.need?'warn':''}"><span>Coach : <b>${co.n?esc(co.n):'à choisir'}</b>${co.rep?` <span class="tag">remplaçant · ${esc(WHY_TXT[co.why]||'')}</span>`:''}</span>
