@@ -233,6 +233,7 @@ function recevoirClasse(o){
   if(o.t!=='C')throw new Error('Ce n’est pas le QR de la classe.');
   const cfg={classe:o.c,cy:'S',eleves:o.l||[],sexes:o.x||[],ages:o.g||[],lien:o.u||'',k:o.k||''};
   if(window.EPSCode)EPSCode.memoriserCle(o.c,o.cc);
+  if(window.EPSCode&&EPSCode.appliquerJour&&o.cj)EPSCode.appliquerJour(o.c,o.cj); // QR du jour : ouvre la séance sans taper le code
   ROOT.classes[o.c]=cfg;ecrireRoot();       /* les autres groupes de la classe recevront la nouvelle liste à leur ouverture */
   if(!G||(G.runners.length&&G.classe&&G.classe!==o.c)){setTimeout(async()=>{if(G){await verrouiller();render()}codeNouveau(o.c,cfg.cy)},400);return 'Classe '+o.c+' enregistrée.'}
   G.cfg=JSON.parse(JSON.stringify(cfg));G.classe=o.c;if(!G.runners.length)G.cy=cfg.cy;save();render();

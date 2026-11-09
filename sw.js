@@ -1,6 +1,6 @@
 /* Hors ligne : l'appli élève, l'outil prof (prof/) et l'ancien carnet sont mis en cache à la 1re ouverture (Wi-Fi), puis fonctionnent sans réseau.
    Après une modification : augmenter le numéro de C (carnet-step-v10 → v11…). */
-const C='carnet-step-v30';
+const C='carnet-step-v31';
 // Toutes les applis partagent le même stockage (même adresse github.io) : on n'efface QUE les anciennes versions de CETTE appli.
 const MES_CACHES=/^carnet-step-v\d+$/;
 
@@ -9,7 +9,7 @@ const sous3s=p=>{p.catch(()=>{});return Promise.race([p,new Promise((_,non)=>set
 const FILES=['./','eps-rappel.js','eps-code.js','eps-maj.js','index.html','style.css','donnees.js','logique.js','qrcode.js','jsqr.js','scan.js','vues.js','chrono.js','app.js','demo-commun.js','demo.js','aide.js','eps-aide.js','eps-pouls.js','pouls-step.js','eps-charte-v1.css','eps-avatars.js','img/avatars/bravo.webp','img/avatars/envoyer.webp','img/avatars/blesse.webp','img/avatars/stop.webp','img/avatars/prof.webp','img/avatars/tableau.webp',
   'polices/archivo.woff2','polices/atkinson-400.woff2','polices/atkinson-700.woff2','manifest.webmanifest','icon-192.png','icon-180.png','icon-32.png','icon-512.png',
   'index-old.html','aide-old.js',
-  'prof/','prof/index.html','prof/style.css','prof/prof.js','prof/prof-demo.js','prof/aide.js','prof/jszip.js','prof/xlsx.js','prof/manifest.webmanifest','prof/icon-192.png','prof/icon-180.png','prof/icon-32.png','prof/icon-512.png'];
+  'prof/','prof/index.html','prof/style.css','prof/prof.js','prof/eps-coffre.js','prof/eps-garde.js','prof/prof-demo.js','prof/aide.js','prof/jszip.js','prof/xlsx.js','prof/manifest.webmanifest','prof/icon-192.png','prof/icon-180.png','prof/icon-32.png','prof/icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>Promise.all(FILES.map(u=>c.add(u).catch(()=>{})))).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>MES_CACHES.test(k)&&k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;

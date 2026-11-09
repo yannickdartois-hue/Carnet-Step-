@@ -240,7 +240,7 @@ function qrPlein(titre,sous,parts){const d=document.createElement('div');d.class
   d.querySelector('button').onclick=()=>{if(h)clearInterval(h);d.remove()};document.body.appendChild(d)}
 async function qrDemarrage(c){const L=P.classesL[c],k=await clePublique();if(!L.cc){L.cc=EPSCode.nouvelleCle();sauver()}
   const ex=L.eleves.map(n=>P.eleves[cleEleve(c,n)]||{});
-  const txt=await STQR.encoder({a:'SPE',v:1,t:'C',c,y:'S',l:L.eleves,x:ex.map(e=>e.sexe||''),g:ex.map(e=>e.age||''),u:L.lien||'',k,cc:L.cc});
+  const txt=await STQR.encoder({a:'SPE',v:1,t:'C',c,y:'S',l:L.eleves,x:ex.map(e=>e.sexe||''),g:ex.map(e=>e.age||''),u:L.lien||'',k,cc:L.cc,cj:await EPSCode.cjDuJour('spp',c,L.cc)});
   qrPlein('Classe '+esc(c)+' · carnet step','Appli élève : « Scanner le QR de la classe » (accueil, ou Groupe → Nouvelle liste de classe)',[txt])}
 /* rappel d'archivage : des séances reçues pendant une année scolaire précédente (l'année scolaire commence le 15 août) */
 const anneeSco=ms=>{const d=new Date(ms);return d.getFullYear()-((d.getMonth()<7||(d.getMonth()===7&&d.getDate()<15))?1:0)};
@@ -529,7 +529,7 @@ document.addEventListener('change',async ev=>{const t=ev.target;
   if(t.dataset.ctrl){const [k,sid]=t.dataset.ctrl.split('|');P.ctrl=P.ctrl||{};P.ctrl[k]=P.ctrl[k]||{};if(t.value.trim())P.ctrl[k][sid]=t.value.trim();else delete P.ctrl[k][sid];sauver();const y=window.scrollY;rendre();window.scrollTo(0,y);return}
   if(t.dataset.af){const [k,f]=t.dataset.af.split('|');P.eleves[k][f]=t.value.trim();sauver();const y=window.scrollY;rendre();window.scrollTo(0,y);return}
   if(t.id==='chvoice'){CH.voice=t.checked;return}
-  if(t.id==='resto'&&t.files[0]){try{const o=JSON.parse(await t.files[0].text());if(!o.stProf)throw 0;if(!confirm('Remplacer les données de cet appareil par cette sauvegarde ?'))return;delete o.stProf;P=Object.assign(vide(),o);sauver();rendre()}catch(x){alert('Ce fichier n’est pas une sauvegarde de l’outil prof.')}}
+  if(t.id==='resto'&&t.files[0]){try{const o=JSON.parse(window.EPSCoffre?await EPSCoffre.lireFichier(t.files[0]):await t.files[0].text());if(!o.stProf)throw 0;if(!confirm('Remplacer les données de cet appareil par cette sauvegarde ?'))return;delete o.stProf;P=Object.assign(vide(),o);sauver();rendre()}catch(x){alert('Ce fichier n’est pas une sauvegarde de l’outil prof.')}}
 });
 ['dragover','drop'].forEach(n=>document.addEventListener(n,e=>{e.preventDefault();if(n==='drop'&&e.dataTransfer.files.length){const F=[...e.dataTransfer.files];if(P.vue==='classes')importerListe(F,'',($('#cl-nom')||{}).value||'');else{P.vue='import';importerFichiers(F)}}}));
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
