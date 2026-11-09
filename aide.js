@@ -33,7 +33,7 @@ publics:[
 </ul>`},
 {t:'Changer de groupe, de tablette, code oublié',html:`<ul>
 <li><b>Un élève change de groupe</b> : Groupe → « … part » affiche son QR ; le nouveau groupe le scanne (« Scanner le QR de l’élève »). Toutes ses séances le suivent.</li>
-<li><b>Changer de tablette</b> : Groupe → « Enregistrer le carnet du groupe », puis « Reprendre un carnet » sur l’autre tablette.</li>
+<li><b>Changer de tablette</b> : Groupe → « Enregistrer le carnet du groupe » (fichier chiffré), puis « Reprendre un carnet » sur l’autre tablette et votre code secret habituel.</li>
 <li><b>Code oublié</b> : touche « Code oublié ? », montre le QR au professeur, scanne sa réponse et choisis un nouveau code.</li>
 <li><b>Ancien carnet</b> : les binômes de l’ancienne appli trouvés sur la tablette sont proposés à l’accueil.</li>
 <li>Le carnet se ferme seul après 20 min sans toucher l’écran, ou si la tablette reste en veille. Touche <span class="bouton">Fermer</span> en partant.</li>

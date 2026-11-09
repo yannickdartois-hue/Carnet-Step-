@@ -321,7 +321,7 @@ function vGroupe(){
   ${b.runners.length?`<section class="card"><h3>Un élève change de groupe</h3><p class="small muted">Toutes ses séances le suivent sur l’autre tablette.</p>
     <div class="row wrap">${b.runners.map((r,i)=>`<button class="btn sm" data-act="tpartir" data-v="${i}">${esc(r.prenom)} part</button>`).join('')}</div>
     ${b.runners.length<3?'<p class="small"><b>Un élève arrive, ou le professeur vous donne un QR de reprise :</b></p><button class="btn sm pri" data-act="tarrive">Scanner le QR de l’élève</button>':'<p class="small muted">Le groupe est complet (3) : pour accueillir un élève, retirez d’abord quelqu’un. Le QR de reprise du professeur marche quand même pour un élève du groupe.</p><button class="btn sm" data-act="tarrive">Scanner un QR de reprise</button>'}</section>`:''}
-  <section class="card"><h3>Changer de tablette</h3><p class="small muted">Le carnet du groupe est gardé sur cette tablette. Pour continuer sur une autre : enregistrez-le ici, puis reprenez-le là-bas (et choisissez un code).</p>
+  <section class="card"><h3>Changer de tablette</h3><p class="small muted">Le carnet du groupe est gardé sur cette tablette. Pour continuer sur une autre : enregistrez-le ici (fichier chiffré), puis reprenez-le là-bas avec votre code secret habituel.</p>
     <div class="row wrap"><button class="btn sm" data-act="sauvegarde">Enregistrer le carnet du groupe</button><label class="btn sm" for="reprise">Reprendre un carnet</label><input id="reprise" type="file" accept=".json,application/json" hidden></div>
     ${C?'<p class="small"><button class="lnk" data-act="qrclasse">Nouvelle liste de classe (QR du professeur)</button></p>':''}</section>
   <section class="card"><h3>Cette tablette</h3><label class="tog"><input type="checkbox" id="optdark" ${ROOT.opts.dark?'checked':''}> Mode sombre (déconseillé dehors, au soleil)</label>
@@ -430,7 +430,7 @@ document.addEventListener('click',async e=>{
     case 'tpartir':if(DEMO)return toast('Pas disponible en démo.');return montrerTransfert(+v);
     case 'tretirer':{const r=G.runners[+v];G.runners.splice(+v,1);V.ri=0;closeModal();save();render();return toast((r?r.prenom:'L’élève')+' est retiré du groupe.')}
     case 'tarrive':if(DEMO)return toast('Pas disponible en démo.');return scannerQR(accueillir,'Élève qui arrive','Scanne le QR affiché par son ancien groupe, ou le QR de reprise du professeur.');
-    case 'sauvegarde':if(DEMO)return toast('Pas disponible en démo.');await enregistrer();return telecharger('Carnet_Step_'+(slug(G.classe)||'groupe')+'_'+G.runners.map(r=>slug(r.prenom)).join('-')+'_'+today()+'.json',JSON.stringify(Object.assign({carnetST:1},G)));
+    case 'sauvegarde':if(DEMO)return toast('Pas disponible en démo.');await enregistrer();return telecharger('Carnet_Step_'+(slug(G.classe)||'groupe')+'_'+G.runners.map(r=>slug(r.prenom)).join('-')+'_'+today()+'.json',JSON.stringify((()=>{const g=Object.assign({},ROOT.groupes[ACTIF]);delete g.essais;delete g.clair;return Object.assign({carnetSTc:1,id:ACTIF},g)})()));
     case 'toutEffacer':{if(DEMO)return toast('Pas disponible en démo.');const ne=nonEnvoyees();if(!confirm((ne.length?'⚠ '+ne.map(s=>s.n).join(', ')+' jamais envoyée(s) au professeur : elle(s) sera(ont) perdue(s).\n\n':'')+'Supprimer ce groupe et toutes ses séances de la tablette ?'))return;
       delete ROOT.groupes[ACTIF];G=null;ACTIF=null;CLEF=null;DB.binomes=[];ecrireRoot();return render()}
   }
@@ -459,7 +459,9 @@ document.addEventListener('change',async e=>{const el=e.target;
   if(el.id==='chvoice'){CH.voice=el.checked;return}
   if(el.id==='optdark'){ROOT.opts.dark=el.checked;ecrireRoot();document.documentElement.dataset.theme=el.checked?'dark':'light';return}
   if(el.id==='reprise'&&el.files[0]){
-    try{const o=JSON.parse(await el.files[0].text());if(!o.carnetST||!o.runners)throw 0;delete o.carnetST;
+    try{const o=JSON.parse(await el.files[0].text());
+      if(o.carnetSTc&&o.data&&o.iv&&o.sel){const {carnetSTc:_m,id:_i,...g}=o;const id=_i||uid(),x=ROOT.groupes[id];el.value='';if(x&&x.data&&(x.vu||0)>=(g.vu||0)){toast('Cette tablette a déjà ce carnet, aussi récent ou plus récent : rien n’a été remplacé.');return}await verrouiller();delete g.essais;ROOT.groupes[id]=g;ecrireRoot();render();toast('Carnet repris : touchez-le et tapez votre code secret habituel.');return}
+      if(!o.carnetST||!o.runners)throw 0;delete o.carnetST;
       if(o.cfg&&o.cfg.classe)ROOT.classes[o.cfg.classe]=o.cfg;await verrouiller();const id=uid();o.id=id;
       ROOT.groupes[id]={classe:o.classe||'',cy:o.cy||'S',noms:(o.runners||[]).map(r=>r.prenom),clair:o};ecrireRoot();render();toast('Carnet repris : touchez-le et choisissez un code.')}
     catch(x){toast('Ce fichier n’est pas un carnet de groupe.')}
