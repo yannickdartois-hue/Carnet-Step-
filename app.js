@@ -131,9 +131,11 @@ function seanceDuJour(){
    ou tablette en veille / appli quittée plus de 2 min. */
 let tInactif=null,tCache=0;
 async function verrouAuto(msg){if(!G||DEMO||(LIVE&&LIVE.t0))return;await verrouiller();closeModal();render();toast(msg)}
-function reveil(){clearTimeout(tInactif);if(G&&!DEMO)tInactif=setTimeout(()=>verrouAuto('Carnet verrouillé (20 min sans activité).'),20*60*1000)}
+// Verrou adapté : un seul carnet sur l'appareil (téléphone d'élève) → 2 h (durée du cours) ; plusieurs carnets (tablette partagée) → 20 min.
+const seulCarnet=()=>Object.keys(ROOT.groupes).length<=1,minVerrou=()=>seulCarnet()?120:20,txtVerrou=()=>'Carnet verrouillé ('+(seulCarnet()?'2 h':'20 min')+' sans activité).';
+function reveil(){clearTimeout(tInactif);if(G&&!DEMO)tInactif=setTimeout(()=>verrouAuto(txtVerrou()),minVerrou()*60*1000)}
 ['click','input','touchstart'].forEach(e=>document.addEventListener(e,reveil,{passive:true}));
-document.addEventListener('visibilitychange',()=>{if(document.hidden){tCache=Date.now();if(G)enregistrer()}else if(tCache&&Date.now()-tCache>2*60*1000){tCache=0;verrouAuto('Carnet verrouillé (tablette mise en veille).')}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){tCache=Date.now();if(G)enregistrer()}else if(tCache&&Date.now()-tCache>(seulCarnet()?120:2)*60*1000){tCache=0;verrouAuto('Carnet verrouillé (tablette mise en veille).')}});
 
 /* ---------- Code secret ---------- */
 let CODE_CB=null;
