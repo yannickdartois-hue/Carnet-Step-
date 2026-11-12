@@ -145,7 +145,7 @@ function demanderCode(titre,texte,cb,creer,id){
     <input id="code" class="in code" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="Code à 4 chiffres">
     <p id="code-msg" class="small warn" style="min-height:1.4em"></p>
     <div class="row wrap" style="justify-content:space-between"><button class="btn" data-act="closem">Annuler</button><button class="btn pri" data-act="codeok">Valider</button></div>
-    ${creer?'':'<p class="small"><button class="lnk" data-act="codeoubli">Code oublié ?</button></p>'}`);
+    ${creer?'<p class="small" style="margin-top:10px">✎ <b>Notez ce code</b> au dos de votre carnet ou dans votre agenda : sans lui, le carnet ne s’ouvre plus.</p>':'<p class="small"><button class="lnk" data-act="codeoubli">Code oublié ?</button></p>'}`);
   setTimeout(()=>{const i=$('#code');if(i)i.focus()},60);
 }
 async function validerCode(){
