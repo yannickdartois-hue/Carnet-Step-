@@ -1,8 +1,8 @@
 /* Hors ligne : l'appli élève, l'outil prof (prof/) et l'ancien carnet sont mis en cache à la 1re ouverture (Wi-Fi), puis fonctionnent sans réseau.
    Après une modification : augmenter le numéro de C (carnet-step-v10 → v11…). */
-const C='carnet-step-v1';
+const C='carnet-step-v1.0';
 // Toutes les applis partagent le même stockage (même adresse github.io) : on n'efface QUE les anciennes versions de CETTE appli.
-const MES_CACHES=/^carnet-step-v\d+$/;
+const MES_CACHES=/^carnet-step-v\d+(?:\.\d+)?$/;
 
 // Wi-Fi faible au gymnase : si le réseau ne répond pas en 3 s, on ouvre la copie gardée sur l'appareil.
 const sous3s=p=>{p.catch(()=>{});return Promise.race([p,new Promise((_,non)=>setTimeout(()=>non(new Error('réseau lent')),3000))])};
