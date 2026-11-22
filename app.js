@@ -35,6 +35,9 @@ function keepScroll(fn){const y=window.scrollY;fn();window.scrollTo(0,y)}
 function fixP(d){}
 let LIVE=null;function liveStop(){}
 let AC=null;
+/* v1.7 : coup de sifflet + vibration (eps-sifflet.js) ; false = l'appli bipe comme avant */
+const SIF=k=>{try{return !!(window.EPSSifflet&&EPSSifflet[k]())}catch(e){return false}};
+const SIFBT=()=>window.EPSSifflet?`<div class="row" style="justify-content:flex-end;margin:6px 0">${EPSSifflet.bouton()}</div>`:'';
 function beep(f,ms){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f||880;g.gain.value=.25;o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+(ms||150)/1000)}catch(e){}}
 
 /* ---------- État ----------
@@ -400,7 +403,7 @@ document.addEventListener('click',async e=>{
   if(ds.chf){CH.fmt=ds.chf;return render()}
   if(!a)return;
   switch(a){
-    case 'chgo':beep(700,60);return chStart();
+    case 'chgo':return window.EPSSifflet?EPSSifflet.demander(()=>{beep(700,60);chStart()}):(beep(700,60),chStart());
     case 'chpause':chPause();return render();
     case 'chstop':chStop();return render();
     case 'seances':return modal(`<h2>Changer de séance</h2><p class="muted small">${CYC[G.cy].label} · ✓ envoyée · ! à envoyer</p><div class="sgrid">${curSessOf(G).map(x=>{const st=sessState(G,x.id);
