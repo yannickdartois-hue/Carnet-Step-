@@ -186,7 +186,7 @@ async function montrerQR(sids,k){
   if(!QRS){QRS={sids,L:[]};for(const sid of sids){const F=fichiers([sid]);if(!F.length)continue;const o=F[0].o;
       const txt=await STQR.encoder({a:'SPE',v:1,t:'G',y:o.cycle,c:o.classe,s:sid,d:o.date,ts:Math.round(Date.now()/1000),gr:o.groupe,
         R:F.map(f=>({e:f.o.eleve,x:f.o.sexe,g:f.o.age||undefined,fr:f.o.fcrM||undefined,co:f.o.coach||undefined,cr:f.o.coachRemplacant?1:undefined,D:f.o.donnees}))});
-      if(txt.length<=1800||F.length===1)QRS.L.push({titre:F.map(f=>prenomDe(f.o.eleve)).join(' & ')+' · '+SBY[sid].n,parts:txt.length<=1800?[txt]:morceaux(txt)});
+      if(txt.length<=1800||F.length===1)QRS.L.push({titre:F.map(f=>prenomDe(f.o.eleve)).join(' & ')+' · '+SBY[sid].n,parts:morceaux(txt)});
       else for(const f of F)QRS.L.push({titre:prenomDe(f.o.eleve)+' · '+SBY[sid].n,parts:morceaux(await STQR.encoder(qrDe(f.o)))})}}
   if(!QRS.L.length){closeModal();return toast('Rien à envoyer pour cette séance.')}
   k=Math.max(0,Math.min(k||0,QRS.L.length-1));const Q=QRS.L[k];
