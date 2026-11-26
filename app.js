@@ -283,7 +283,9 @@ function render(){
   /* séance du jour : un seul bouton « S4 ▾ » dans la barre (la séance s'ouvre toute seule ; changer reste à un toucher) */
   const st0=sessState(b,V.sid),ne0=nonEnvoyees();
   $('#seances').hidden=true;const bs=$('#btnSeance');bs.hidden=!b.runners.length;
-  bs.innerHTML=`${SBY[V.sid].n} <span aria-hidden="true">▾</span>${ne0.length?'<i class="pt" aria-label="séance à envoyer"></i>':''}`;bs.className='bseance '+(st0||'');
+  /* v1.12 : bouton « piste » : le coureur (point jaune) est placé selon la séance choisie / nombre de séances */
+  bs.className='bseance '+(st0||'');EPSSeances.bouton(bs,{cle:'carnet-step:seance',rang:L.findIndex(s=>s.id===V.sid),total:L.length,texte:`${SBY[V.sid].n} <span aria-hidden="true">▾</span>`});
+  if(ne0.length)bs.insertAdjacentHTML('beforeend','<i class="pt" aria-label="séance à envoyer"></i>');bs.setAttribute('aria-label','Séance '+SBY[V.sid].n+' sur '+L.length+' : changer de séance');
   const ne=nonEnvoyees();
   const O=[['seance','Séance'],['moi','Moi'],['chrono','Chrono'],['envoi','Envoyer'],['groupe','Groupe']];
   if(V.tab!=='chrono'&&CH.run)chStop();
@@ -407,8 +409,8 @@ document.addEventListener('click',async e=>{
     case 'chgo':return window.EPSSifflet?EPSSifflet.demander(()=>{beep(700,60);chStart()}):(beep(700,60),chStart());
     case 'chpause':chPause();return render();
     case 'chstop':chStop();return render();
-    case 'seances':return modal(`<h2>Changer de séance</h2><p class="muted small">${CYC[G.cy].label} · ✓ envoyée · ! à envoyer</p><div class="sgrid">${curSessOf(G).map(x=>{const st=sessState(G,x.id);
-      return `<button class="sbtn ${st} ${x.id===V.sid?'ici':''}" data-sess="${x.id}"><b>${x.n}</b><span>${esc(x.t)}</span><i>${st==='sent'?'✓ envoyée':st==='resend'?'! modifiée : renvoyer':st==='wip'?'! à envoyer':x.id===V.sid?'aujourd’hui':''}</i></button>`}).join('')}</div><div class="row"><button class="btn" data-act="closem">Fermer</button></div>`);
+    case 'seances':{const LS=curSessOf(G);return modal(`<h2>Changer de séance</h2><p class="muted small">${CYC[G.cy].label} · ✓ envoyée · ! à envoyer</p>${EPSSeances.piste({rang:LS.findIndex(x=>x.id===V.sid),seances:LS.map(x=>({id:x.id,n:x.n,etat:sessState(G,x.id)})),centre:SBY[V.sid].n+' / '+LS.length})}<div class="sgrid">${curSessOf(G).map(x=>{const st=sessState(G,x.id);
+      return `<button class="sbtn ${st} ${x.id===V.sid?'ici':''}" data-sess="${x.id}"><b>${x.n}</b><span>${esc(x.t)}</span><i>${st==='sent'?'✓ envoyée':st==='resend'?'! modifiée : renvoyer':st==='wip'?'! à envoyer':x.id===V.sid?'aujourd’hui':''}</i></button>`}).join('')}</div><div class="row"><button class="btn" data-act="closem">Fermer</button></div>`)}
     case 'onetog':DB.opts.one=!oneMode();ecrireRoot();return keepScroll(render);
     case 'presopen':V.presOpen=true;return keepScroll(render);
     case 'presclose':V.presOpen=false;return keepScroll(render);

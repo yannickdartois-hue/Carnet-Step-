@@ -335,7 +335,7 @@ nav.otop .og:first-child{padding-left:0}
 @media (max-width:560px){.lanehead.sess .ln{font-size:28px}.lanehead.sess div{padding:10px 14px}.lanehead.sess b{font-size:18px}.lanehead.sess span{font-size:max(14.5px,var(--fs-min,15px));margin-top:3px}.presline{margin:10px 0;padding:8px 14px;font-size:15px}.demo-bandeau{margin-top:10px}}
 .tag.neuf{background:var(--acc2);margin-left:6px;vertical-align:1px}
 /* bouton de séance dans la barre */
-header button.bseance{position:relative;font-weight:900;font-style:italic;font-size:17px;border:2px solid var(--tartan);color:var(--tartan);min-width:72px}
+header button.bseance{position:relative;font-weight:900;font-style:italic;font-size:17px;border:2px solid var(--tartan);color:var(--tartan);min-width:72px;padding-left:10px;padding-right:10px}
 header button.bseance.sent{border-color:var(--acc);color:var(--acc2)}
 header button.bseance .pt{position:absolute;right:-4px;top:-4px;width:14px;height:14px;border-radius:50%;background:var(--attn-bd);border:2px solid var(--card)}
 .sbtn.ici{box-shadow:var(--sh),inset 0 0 0 3px var(--tartan)}
@@ -372,3 +372,6 @@ header button.bseance .pt{position:absolute;right:-4px;top:-4px;width:14px;heigh
 .qbilan{margin:0 0 6px;font-weight:700;font-size:18px;color:var(--acc2)}
 .nonenvoye.av{display:flex;align-items:center;gap:12px}.nonenvoye.av img{height:96px;width:auto;flex:none}
 @media print{.nonenvoye.av img{display:none}}
+
+/* v1.12 · sélecteur de séance « piste » : sur petit téléphone, la flèche ▾ s'efface pour laisser lire le nom de l'appli */
+@media (max-width:400px){header button.bseance{padding-left:8px;padding-right:8px}header button.bseance .eps-se-txt span{display:none}}
