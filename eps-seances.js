@@ -8,8 +8,10 @@
 
    API :
      EPSSeances.bouton(el, {cle, rang, total, texte})   remplit le bouton (rang : 0 = S1)
-     EPSSeances.piste({rang, total, seances:[{id, n, etat}]})   grande piste (fenêtre « Changer de séance »)
-       → chaque séance est un repère cliquable (data-sess), la séance choisie porte le coureur
+     EPSSeances.piste({rang, seances:[{id, n, etat}], centre, attr})   grande piste (fenêtre « Changer de séance »)
+       → chaque séance est un repère cliquable (par défaut data-sess="id" ; attr(s) donne d'autres attributs,
+         ex. s => `data-act="seance" data-v="${s.n}"`), la séance choisie porte le coureur.
+       etat : sent / fait (vert), wip / resend (ambre)
    ===================================================================== */
 (function(root){
 'use strict';
@@ -70,7 +72,7 @@ function bouton(el, o){
 function piste(o){
   const W = 320, H = 132, M = 18, S = stade(W, H, M), n = o.seances.length, t = pos(o.rang, n);
   const reps = o.seances.map((s, k) => {const [x, y] = S.pt(pos(k, n));
-    return `<g class="eps-se-rep ${s.etat || ''} ${k === o.rang ? 'ici' : ''}" data-sess="${s.id}" role="button" tabindex="0" aria-label="Séance ${s.n}">`
+    return `<g class="eps-se-rep ${s.etat || ''} ${k === o.rang ? 'ici' : ''}" ${o.attr ? o.attr(s) : `data-sess="${s.id}"`} role="button" tabindex="0" aria-label="Séance ${s.n}">`
       + `<circle cx="${f1(x)}" cy="${f1(y)}" r="13"/><text x="${f1(x)}" y="${f1(y + 4.2)}" text-anchor="middle">${String(s.n).replace(/^S/, '')}</text></g>`}).join('');
   /* le coureur se tient juste à l'extérieur du repère de la séance choisie */
   const [qx, qy] = S.pt(t), vx = qx - W / 2, vy = (qy - H / 2) * (W / H), nv = Math.hypot(vx, vy) || 1, px = qx + vx / nv * 18, py = qy + vy / nv * 18;
@@ -90,12 +92,12 @@ function css(){
     + '.eps-se-fait{fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round}'
     + '.eps-se-pt{fill:#facc15;stroke:#1c2128;stroke-width:1.6}'
     + '.eps-se-txt{white-space:nowrap}'
-    + '.eps-se-grande{margin:4px 0 10px;color:var(--acc,var(--tartan,#b91c1c))}.eps-se-grande svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;overflow:visible}'
+    + '.eps-se-grande{margin:4px 0 10px;color:var(--acc,var(--ligne,var(--tartan,#b91c1c)))}.eps-se-grande svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;overflow:visible}'
     + '.eps-se-grande .eps-se-voie,.eps-se-grande .eps-se-fait{stroke-width:7}'
     + '.eps-se-centre{font:800 15px/1 system-ui,sans-serif;fill:currentColor;opacity:.8}'
     + '.eps-se-rep{cursor:pointer}.eps-se-rep circle{fill:#fff;stroke:currentColor;stroke-width:2.5}'
     + '.eps-se-rep text{font:900 12px/1 system-ui,sans-serif;fill:#1c2128;pointer-events:none}'
-    + '.eps-se-rep.sent circle{fill:#dcfce7;stroke:#15803d}.eps-se-rep.wip circle,.eps-se-rep.resend circle{fill:#fef3c7;stroke:#d97706}'
+    + '.eps-se-rep.sent circle,.eps-se-rep.fait circle{fill:#dcfce7;stroke:#15803d}.eps-se-rep.wip circle,.eps-se-rep.resend circle{fill:#fef3c7;stroke:#d97706}'
     + '.eps-se-rep.ici circle{fill:#1c2128;stroke:#1c2128}.eps-se-rep.ici text{fill:#fff}'
     + '.eps-se-rep:focus-visible circle{stroke-width:4;stroke:#facc15}'
     + '.eps-se-grande .eps-se-pt{stroke-width:2}';
