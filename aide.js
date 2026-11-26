@@ -3,10 +3,10 @@ window.EPS_AIDE={appli:'Carnet step · Élève',bouton:false,
 pied:'Les carnets restent sur la tablette, chiffrés par le code de chaque binôme : ils partent seulement quand le binôme les envoie au professeur.',
 publics:[
 {id:'eleve',titre:'Élève',chapitres:[
-{t:'🔑 Code du cours',html:`<ul>
-<li>Au début du cours, le professeur écrit un <b>code à 4 chiffres</b>. Touche <span class="bouton">🔑 Code du cours</span> et tape-le : la séance du jour s’ouvre pendant 2 heures.</li>
-<li>Sans code, tu peux tout consulter, mais rien saisir : la saisie se fait en cours.</li>
-<li>Code refusé ? Vérifie que la date du téléphone est juste. Après 5 erreurs, attends 1 minute.</li>
+{t:'📷 Ouvrir la séance du jour',html:`<ul>
+<li>En début de cours, le professeur affiche le <b>QR du jour</b>. Scanne-le (bandeau 🔒 → <span class="bouton">📷 Scanner le QR du jour</span>, ou « Scanner le QR de la classe ») : la séance du jour s’ouvre pendant 2 heures. Rien à taper.</li>
+<li>Sans ce QR, tu peux tout consulter, mais rien saisir : la saisie se fait en cours.</li>
+<li>QR refusé ? Lis le message : QR d’un autre jour (vérifie la date du téléphone), d’une autre classe ou abîmé. Demande le QR du jour à ton professeur.</li>
 </ul>`},
 
 {t:'Commencer (premier cours)',html:`<ol>

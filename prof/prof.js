@@ -246,19 +246,21 @@ function qrPlein(titre,sous,parts){const d=document.createElement('div');d.class
   let i=0;const z=d.querySelector('#qpz'),n=d.querySelector('#qpn');z.innerHTML=svgQR(parts[0]);if(parts.length>1)n.textContent='1 / '+parts.length+' · la tablette vise jusqu’au bout';
   const h=parts.length>1?setInterval(()=>{i=(i+1)%parts.length;z.innerHTML=svgQR(parts[i]);n.textContent=(i+1)+' / '+parts.length+' · la tablette vise jusqu’au bout'},1100):null;
   d.querySelector('.btn.pri.big').onclick=()=>{if(h)clearInterval(h);d.remove()};document.body.appendChild(d)}
-/* 24/11/2026 : choisir la séance que le QR de la classe ouvre aujourd'hui (même mémoire que « Code du cours ») */
+/* 24/11/2026 : choisir la séance que le QR de la classe ouvre aujourd'hui (mémoire commune eps-code.js) */
 const SQR={
-  lire(app,c){try{const m=JSON.parse(localStorage.getItem('eps-code-prof:'+app)||'{}')[c];return m&&m.d===EPSCode.jour()?String(m.s):''}catch(e){return ''}},
-  ecrire(app,c,s){try{const k='eps-code-prof:'+app,m=JSON.parse(localStorage.getItem(k)||'{}');m[c]={s:String(s),d:EPSCode.jour()};localStorage.setItem(k,JSON.stringify(m))}catch(e){}},
-  html(app,c,L){const s=SQR.lire(app,c),x=L.find(y=>String(y.v)===s),on=y=>String(y.v)===s;
-    return `<div class="sqr" style="margin:8px 0"><p style="margin:0 0 6px">${x?'Ce QR ouvre la <b>'+esc(x.n)+'</b> aujourd’hui pendant 2 h, sans code à taper. Autre séance :':'<b>Choisissez la séance</b> que ce QR ouvre aujourd’hui :'}</p><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${L.map(y=>`<button type="button" data-sqr="${esc(c)}|${esc(String(y.v))}" aria-pressed="${on(y)}" style="min-width:52px;min-height:48px;border-radius:12px;font-weight:800;font-size:17px;cursor:pointer;border:2px solid ${on(y)?'#15803d':'#cbd5e1'};background:${on(y)?'#15803d':'#fff'};color:${on(y)?'#fff':'#111'}">${esc(y.c)}</button>`).join('')}</div></div>`},
-  brancher(app,rouvrir){document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-sqr]');if(!b)return;e.preventDefault();e.stopPropagation();
+  lire(app,c,L){return EPSCode.seanceDuJour(app,c,(L||[]).map(y=>String(y.v)))},   /* v2 (chantier 9) : toujours une séance proposée */
+  ecrire(app,c,s){EPSCode.choisirSeance(app,c,s)},
+  html(app,c,L){const s=SQR.lire(app,c,L),x=L.find(y=>String(y.v)===s),on=y=>String(y.v)===s;
+    return `<div class="sqr" style="margin:8px 0"><p style="margin:0 0 6px">${x?'Ce QR ouvre la <b>'+esc(x.n)+'</b> aujourd’hui (pendant 2 h après le scan). Autre séance :':'<b>Choisissez la séance</b> que ce QR ouvre aujourd’hui :'}</p><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${L.map(y=>`<button type="button" data-sqr="${esc(c)}|${esc(String(y.v))}" aria-pressed="${on(y)}" style="min-width:52px;min-height:48px;border-radius:12px;font-weight:800;font-size:17px;cursor:pointer;border:2px solid ${on(y)?'#15803d':'#cbd5e1'};background:${on(y)?'#15803d':'#fff'};color:${on(y)?'#fff':'#111'}">${esc(y.c)}</button>`).join('')}</div><p style="margin:10px 0 0;text-align:center"><button type="button" data-sqrprep="${esc(c)}" style="min-height:46px;padding:0 16px;border-radius:12px;font-weight:700;font-size:16px;cursor:pointer;border:2px solid #cbd5e1;background:#fff;color:#111">🗓 QR pour un autre jour · imprimer</button></p></div>`},
+  brancher(app,rouvrir,prep){document.addEventListener('click',e=>{const p=e.target.closest&&e.target.closest('[data-sqrprep]');if(p){e.preventDefault();e.stopPropagation();if(prep)prep(p.dataset.sqrprep);return}
+    const b=e.target.closest&&e.target.closest('[data-sqr]');if(!b)return;e.preventDefault();e.stopPropagation();
     const v=b.dataset.sqr,i=v.lastIndexOf('|'),c=v.slice(0,i);SQR.ecrire(app,c,v.slice(i+1));document.querySelectorAll('.qr-plein,.voile').forEach(x=>{if(x.contains(b))x.remove()});rouvrir(c)},true)}
 };
-SQR.brancher('spp',c=>qrDemarrage(c));
-async function qrDemarrage(c){const L=P.classesL[c],k=await clePublique();if(!L.cc){L.cc=EPSCode.nouvelleCle();sauver()}
+SQR.brancher('spp',c=>qrDemarrage(c),c=>{const L=P.classesL[c];if(!L)return;if(!L.cc){L.cc=EPSCode.nouvelleCle();sauver()}EPSCode.preparer({app:'spp',classe:c,cle:L.cc,titre:'Carnet step',seances:CYC[L.cy||'S'].sess.map(x=>({v:x.id,n:x.n})),qr:cj=>qrDemarrage(c,cj,true)})});
+async function qrDemarrage(c,cjForce,svgSeul){const L=P.classesL[c],k=await clePublique();if(!L.cc){L.cc=EPSCode.nouvelleCle();sauver()}
   const ex=L.eleves.map(n=>P.eleves[cleEleve(c,n)]||{});
-  const txt=await STQR.encoder({a:'SPE',v:1,t:'C',c,y:'S',l:L.eleves,x:ex.map(e=>e.sexe||''),g:ex.map(e=>e.age||''),u:L.lien||'',k,cc:L.cc,cj:await EPSCode.cjDuJour('spp',c,L.cc)});
+  const txt=await STQR.encoder({a:'SPE',v:1,t:'C',c,y:'S',l:L.eleves,x:ex.map(e=>e.sexe||''),g:ex.map(e=>e.age||''),u:L.lien||'',k,cc:L.cc,cj:cjForce||await EPSCode.cjDuJour('spp',c,L.cc,undefined,CYC[L.cy||'S'].sess.map(x=>String(x.id)))});
+  if(svgSeul)return svgQR(txt);
   qrPlein('Classe '+esc(c)+' · carnet step',SQR.html('spp',c,CYC[L.cy||'S'].sess.map(x=>({v:x.id,n:x.n,c:String(x.id).toUpperCase()})))+'Appli élève : « Scanner le QR de la classe » (accueil, ou Groupe → Nouvelle liste de classe)',[txt])}
 /* rappel d'archivage : des séances reçues pendant une année scolaire précédente (l'année scolaire commence le 15 août) */
 const anneeSco=ms=>{const d=new Date(ms);return d.getFullYear()-((d.getMonth()<7||(d.getMonth()===7&&d.getDate()<15))?1:0)};
@@ -275,7 +277,7 @@ function vClasses(){
     <label>Ou coller la liste<textarea id="cl-txt" class="in" rows="4" placeholder="DUPONT Marie&#10;MARTIN Léo"></textarea></label><button class="btn sm" data-act="clcoller">Importer la liste collée</button></section>
   ${C.length?C.map(c=>{const L=P.classesL[c];return `<section class="card"><h3>${esc(c)} <span class="small muted">· ${L.eleves.length} élèves</span></h3>
     <div class="row wrap"><label style="flex:1 1 320px">Lien d’envoi en ligne (Nuage, « Demande de fichier ») — jamais visible par les élèves<input type="url" class="in cl-lien" style="max-width:none" data-cl="${esc(c)}" value="${esc(L.lien)}" placeholder="https://nuage03.apps.education.fr/s/…"></label></div>
-    <div class="row wrap"><button class="btn pri" data-act="qrdem" data-v="${esc(c)}">QR de démarrage</button><button class="btn" data-act="codecours" data-v="${esc(c)}">🔑 Code du cours</button><button class="btn sm ghost" data-act="clsuppr" data-v="${esc(c)}">Retirer la liste</button></div>
+    <div class="row wrap"><button class="btn pri" data-act="qrdem" data-v="${esc(c)}">QR de démarrage</button><button class="btn sm ghost" data-act="clsuppr" data-v="${esc(c)}">Retirer la liste</button></div>
     <details><summary class="small">Voir la liste</summary><ol class="small">${L.eleves.map(n=>{const e=P.eleves[cleEleve(c,n)]||{};return `<li>${esc(n)}${e.sexe||e.age?` <span class="muted">· ${e.sexe==='F'?'fille':e.sexe==='G'?'garçon':''}${e.age?' · '+esc(e.age)+' ans':''}</span>`:''}</li>`}).join('')}</ol></details></section>`}).join('')+`<p class="small muted">Le QR contient la liste (avec sexe et âge s’ils sont connus), le lien et ta clé de copie de secours. Si tu changes la liste ou le lien, les groupes rescannent le nouveau QR (Groupe → Nouvelle liste de classe).</p>`:''}
 <section class="card"><h3>🔑 Un groupe a oublié son code</h3><ol class="small"><li>Le groupe touche « Code oublié ? » : un QR s’affiche.</li><li>Ici : <b>Recevoir → Scanner les QR codes</b> → ce QR (sur la tablette, en photo ou imprimé). <b>Le code s’affiche en grand</b> : dites-le au groupe.</li><li>Carnet ancien, pas rouvert depuis la mise à jour : un QR de déverrouillage s’affiche à la place ; le groupe le scanne et choisit un nouveau code. Rien n’est perdu.</li></ol><p class="small muted">Tablette qui n’avait jamais scanné le QR de démarrage : nouveau groupe, puis <b>Élèves</b> → fiche → « QR de reprise » pour chaque élève.</p></section>
   <section class="card"><h3>Fin d’année</h3><p class="small muted">Télécharge une sauvegarde complète, puis vide l’outil pour la rentrée suivante.</p><button class="btn sm ghost" data-act="archiver">Archiver l’année et repartir à zéro</button></section>
@@ -517,7 +519,6 @@ document.addEventListener('click',async ev=>{
     case 'csv':return exporter(v);
     case 'imprimer':return window.print();
     case 'qrdem':return qrDemarrage(v);
-    case 'codecours':{const L=P.classesL[v];if(!L)return;if(!L.cc){L.cc=EPSCode.nouvelleCle();sauver()}return EPSCode.prof({app:'spp',classe:v,cle:L.cc,seances:CYC[L.cy||'S'].sess.map(s=>({v:s.id,n:s.n}))})}
     case 'reprise':return qrReprise(k);
     case 'clcoller':return importerListe([],$('#cl-txt').value,$('#cl-nom').value.trim());
     case 'clsuppr':if(!confirm('Retirer la liste de la classe '+v+' ? (Les séances reçues sont gardées.)'))return;delete P.classesL[v];classeParDefaut();break;

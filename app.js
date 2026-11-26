@@ -239,11 +239,11 @@ async function montrerTransfert(i){const r=G.runners[i];const parts=morceaux(awa
    <div class="row wrap" style="justify-content:space-between"><button class="btn" data-act="closem">Fermer</button><button class="btn danger" data-act="tretirer" data-v="${i}">C’est fait : retirer ${esc(r.prenom)} d’ici</button></div>`);
   qrAnime(parts)}
 /* lecture caméra, avec les QR en plusieurs morceaux */
-function scannerQR(onObj,titre,aide){let P={tag:null,n:0,parts:{}},fin=null;
+function scannerQR(onObj,titre,aide,errDec){let P={tag:null,n:0,parts:{}},fin=null;
   fin=STQR.scanner(async t=>{t=String(t).trim();
     if(t.startsWith('SPEP|')){const m=/^SPEP\|(\w+)\|(\d+)\/(\d+)\|(.*)$/s.exec(t);if(!m)throw new Error('Morceau illisible.');if(P.tag!==m[1])P={tag:m[1],n:+m[3],parts:{}};P.parts[+m[2]]=m[4];
       const got=Object.keys(P.parts).length;if(got<P.n)return got+' / '+P.n+' morceaux…';let s='';for(let i=1;i<=P.n;i++)s+=P.parts[i];t=s}
-    const msg=onObj(await STQR.decoder(t));beep();setTimeout(()=>{fin&&fin()},700);return msg},{continu:true,titre,aide});
+    let o;try{o=await STQR.decoder(t)}catch(e){throw new Error(errDec||e.message)}const msg=await onObj(o);beep();setTimeout(()=>{fin&&fin()},700);return msg},{continu:true,titre,aide});
 }
 function recevoirClasse(o){
   if(o.t!=='C')throw new Error('Ce n’est pas le QR de la classe.');
@@ -515,7 +515,8 @@ return `<section class="card"><h3>Conseils</h3>${D.map(([t,x])=>`<details class=
 /* chrono qui reprend après rechargement : on rouvre son écran */
 function chOuvrir(){V.tab='chrono'}
 
-/* Code du cours (eps-code.js, commun) : la saisie ne s’ouvre qu’en cours, avec le code à 4 chiffres du professeur (2 h). */
-if(window.EPSCode)EPSCode.eleve({app:'spe',classe:()=>G&&G.classe||'',seance:()=>G?String(V.sid||''):'',seances:()=>G?sessOf(G.cy).map(s=>s.id):[],nom:s=>(SBY[s]||{n:s}).n,
+/* Séance du jour (eps-code.js v2, commun) : la saisie ne s’ouvre qu’en cours, en scannant le QR du jour du professeur (2 h). Aucun code à taper. */
+if(window.EPSCode)EPSCode.eleve({app:'spe',qrApp:'SPE',scanner:v=>scannerQR(async o=>{await v(o);return recevoirClasse(o)},'QR du jour','Scanne le QR affiché par le professeur : la séance s’ouvre.','Ce QR n’est pas un QR de cette appli. Demande le QR du jour à ton professeur.'),
+  classe:()=>G&&G.classe||'',seance:()=>G?String(V.sid||''):'',seances:()=>G?sessOf(G.cy).map(s=>s.id):[],nom:s=>(SBY[s]||{n:s}).n,
   ouvrir:s=>{if(!G)return;V.sid=s;V.tab='seance';V.ri=0;V.cur=0;V.ph='piste';V.presOpen=false;G.jours=G.jours||{};G.jours[today()]=s;save();render()},
   actif:()=>!!G&&['seance','moi','chrono'].includes(V.tab),libreSel:'[data-tab],[data-ph],[data-ri],[data-sess],[data-cur],[data-calc]',libre:['calc','closem','qrnav'],demo:()=>DEMO});
