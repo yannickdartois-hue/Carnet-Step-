@@ -6,7 +6,8 @@
    seulement quand le groupe les envoie au professeur (QR code ou fichier déposé sur le Nuage).
    ===================================================================== */
 'use strict';
-const APP_VERSION='v4 · 29/10/2026';
+let APP_VERSION='';   /* chantier 11 : version lue dans le cache hors ligne (sw.js), plus de numéro écrit à la main qui vieillit */
+try{caches.keys().then(k=>{const v=k.map(n=>/^carnet-step-v(\d+)\.(\d+)$/.exec(n)).filter(Boolean).sort((a,b)=>a[1]-b[1]||a[2]-b[2]).pop();if(v){APP_VERSION='v'+v[1]+'.'+v[2];document.querySelectorAll('[data-ver]').forEach(x=>x.textContent=(x.dataset.pref||'')+APP_VERSION+(x.dataset.suf||''))}}).catch(()=>{})}catch(e){}
 const CLE='spe-v1';
 /* Envoi en ligne : le lien de dépôt (Nuage, « Demande de fichier ») arrive avec le QR de la classe.
    Il n'apparaît jamais à l'écran. Vide = envoi en ligne pas encore activé (le QR code reste possible). */
@@ -158,7 +159,7 @@ function demanderCode(titre,texte,cb,creer,id){
     <input id="code" class="in code" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="Code à 4 chiffres">
     <p id="code-msg" class="small warn" style="min-height:1.4em"></p>
     <div class="row wrap" style="justify-content:space-between"><button class="btn" data-act="closem">Annuler</button><button class="btn pri" data-act="codeok">Valider</button></div>
-    ${creer?'<p class="small" style="margin-top:10px">✎ <b>Notez ce code</b> au dos de votre carnet ou dans votre agenda : sans lui, le carnet ne s’ouvre plus.</p>':'<p class="small"><button class="lnk" data-act="codeoubli">Code oublié ?</button></p>'}`);
+    ${creer?'<p class="small" style="margin-top:10px">✎ <b>Notez ce code</b> au dos de votre carnet ou dans votre agenda : sans lui, le carnet ne s’ouvre plus.</p>':'<p class="small"><button class="lnk" data-act="codeoubli" style="min-height:44px;font-weight:700">🔑 Code oublié ?</button></p>'}`);
   setTimeout(()=>{const i=$('#code');if(i)i.focus()},60);
 }
 async function validerCode(){
@@ -310,18 +311,18 @@ function vChoix(){
   const Gs=Object.entries(ROOT.groupes).sort((a,b)=>(a[1].classe||'').localeCompare(b[1].classe||'','fr')||(b[1].vu||0)-(a[1].vu||0));
   const parC={};Gs.forEach(([id,g])=>(parC[g.classe||'Sans classe']=parC[g.classe||'Sans classe']||[]).push([id,g]));
   const C=Object.keys(ROOT.classes).sort();
-  return `<section class="intro"><h1>Qui utilise la tablette ?</h1><p>Chaque groupe ouvre son carnet avec son code secret : ne le donne à personne.</p></section>
+  return `<section class="intro"><h1>Ouvre le carnet de ton groupe</h1><p>Chaque groupe ouvre son carnet avec son code secret : ne le donne à personne.</p></section>
   ${Gs.length?Object.entries(parC).map(([c,L])=>`<section class="card"><h3>${esc(c)}</h3><div class="grid">${L.map(([id,g])=>{const ne=g.nonEnv&&g.nonEnv.length;
-    return ` <button class="bincard ${ne?'nonenv':''}" data-act="choisir" data-v="${id}"><b>${g.noms&&g.noms.length?g.noms.map(esc).join(' · '):'Groupe à compléter'}</b><span class="muted small">${g.clair?'à protéger par un code':'🔒 code secret du groupe'}</span>${ne?`<span class="warn small">⚠ ${g.nonEnv.join(', ')} non envoyée${g.nonEnv.length>1?'s':''}</span>`:''}</button>`}).join('')}</div></section>`).join(''):'<p class="muted center">Aucun groupe sur cette tablette pour l’instant.</p>'}
+    return ` <button class="bincard ${ne?'nonenv':''}" data-act="choisir" data-v="${id}"><b>${g.noms&&g.noms.length?g.noms.map(esc).join(' · '):'Groupe à compléter'}</b><span class="muted small">${g.clair?'à protéger par un code':'🔒 code secret du groupe'}</span>${ne?`<span class="warn small">⚠ ${g.nonEnv.join(', ')} non envoyée${g.nonEnv.length>1?'s':''}</span>`:''}</button>`}).join('')}</div></section>`).join(''):'<p class="muted center">Aucun groupe sur cet appareil pour l’instant.</p>'}
   ${ancien()?`<section class="card todo"><h3>Ancien carnet numérique</h3><p class="small">${ancien()} binôme${ancien()>1?'s':''} de l’ancienne appli trouvé${ancien()>1?'s':''} sur cette tablette. Reprenez-les ici : chaque binôme choisira ensuite son code secret.</p><button class="btn pri" data-act="migrer">Reprendre les binômes de l’ancien carnet</button></section>`:''}
   <section class="card"><h3>Nouveau groupe</h3>
     <button class="btn pri big full" data-act="nouveauqr">Scanner le QR de la classe</button>
-    ${C.length?`<p class="small muted">Ou une classe déjà enregistrée sur la tablette :</p><div class="seg">${C.map(c=>`<button class="chip" data-act="nouveau" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div>`:''}
+    ${C.length?`<p class="small muted">Ou une classe déjà enregistrée sur cet appareil :</p><div class="seg">${C.map(c=>`<button class="chip" data-act="nouveau" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div>`:''}
     <details><summary class="small">Pas de QR ? Créer le groupe à la main</summary><p class="small muted">Le professeur affiche le QR de la classe au premier cours : il donne la liste des élèves et active l’envoi en ligne. Sans lui, seul l’envoi par QR code est possible.</p>
       <div class="row wrap"><button class="btn" data-act="nouveaumain" data-v="S">Créer le groupe sans QR</button></div></details></section>
   <section class="card demo-carte"><h3>Découvrir l’appli</h3><p class="small muted">Un groupe fictif déjà rempli, pour voir tous les écrans. Rien n’est enregistré ni envoyé.</p>
     <div class="row wrap"><button class="btn" data-act="demo" data-v="S">Ouvrir la démo</button></div></section>
-  <p class="ver">Step · carnet élève ${APP_VERSION}. Les données restent sur cette tablette : elles partent seulement quand votre groupe les envoie au professeur.</p>`;
+  <p class="ver">Step · carnet élève<span data-ver data-pref=" ">${APP_VERSION?' '+APP_VERSION:''}</span>. Les données restent sur cette tablette : elles partent seulement quand votre groupe les envoie au professeur.</p>`;
 }
 /* ----- Groupe ----- */
 function vGroupe(){
@@ -345,7 +346,7 @@ function vGroupe(){
     ${C?'<p class="small"><button class="lnk" data-act="qrclasse">Nouvelle liste de classe (QR du professeur)</button></p>':''}</section>
   <section class="card"><h3>Cette tablette</h3><label class="tog"><input type="checkbox" id="optdark" ${ROOT.opts.dark?'checked':''}> Mode sombre (déconseillé dehors, au soleil)</label>
     <button class="btn sm ghost" data-act="toutEffacer">Supprimer ce groupe de la tablette</button></section>
-  <p class="ver">Les données restent sur cette tablette. Elles partent seulement quand vous les envoyez au professeur (QR code ou envoi en ligne). ${APP_VERSION}</p>`;
+  <p class="ver">Les données restent sur cette tablette. Elles partent seulement quand vous les envoyez au professeur (QR code ou envoi en ligne). <span data-ver>${APP_VERSION}</span></p>`;
 }
 /* ----- Envoyer ----- */
 function resumeTxt(run,sid){const d=run.seances&&run.seances[sid];if(!hasData(d))return '';if(d.st)return ST_TXT[d.st];const [t,n]=tenR(run,sid);const L=[];
