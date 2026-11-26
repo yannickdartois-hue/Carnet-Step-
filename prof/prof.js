@@ -83,11 +83,19 @@ async function lireTexteQR(t){t=String(t||'').trim();
     if(got<PCH.n)return '… '+got+' / '+PCH.n+' morceaux';let s='';for(let i=1;i<=PCH.n;i++)s+=PCH.parts[i];PCH={tag:null,n:0,parts:{}};t=s}
   if(/^SP[23]/.test(t))return importerAncien(/Ã|Â/.test(t)?decodeURIComponent(escape(t)):t);
   if(/^DF/.test(t))throw new Error('Ce QR vient de l’appli de demi-fond, pas du step.');
-  const q=await STQR.decoder(t);if(q.t==='K')return deblocage(q);
+  const q=await STQR.decoder(t);if(q.t==='K')return deblocage(q);if(q.t==='Q')return codeOublie(q);
   return importerQR(q);
 }
 /* code oublié côté élève : la tablette montre la clé du carnet chiffrée pour ma clé ; je la rends par un QR */
 const b64s=u=>{let x='';new Uint8Array(u).forEach(c=>x+=String.fromCharCode(c));return btoa(x)};
+/* v1.14 : code oublié en un scan (comme la gym) : la tablette montre son code chiffré pour ma clé ; je l'affiche en grand */
+async function codeOublie(q){if(DEMO)throw new Error('Pas de code oublié en démo.');
+  let raw;try{raw=await ouvrirBrut(q.p)}catch(e){throw new Error('Ce code a été chiffré pour un autre appareil prof (restaure ta sauvegarde).')}
+  const code=new TextDecoder().decode(raw);
+  setTimeout(()=>{const d=document.createElement('div');d.className='qr-plein';
+    d.innerHTML=`<div><h2>Code du groupe</h2><p>${(q.n||[]).map(esc).join(' · ')}${q.c?' · '+esc(q.c):''}</p><p style="font:900 72px/1.1 ui-monospace,monospace;letter-spacing:.2em;margin:18px 0;text-align:center">${esc(code)}</p><p class="small center">Dites-le au groupe (sans l’afficher à toute la classe) : il le tape pour ouvrir son carnet.</p><button class="btn pri big" type="button">Fermer</button></div>`;
+    d.querySelector('button').onclick=()=>d.remove();document.body.appendChild(d)},300);
+  journal('Code oublié rendu : '+(q.n||[]).join(', ')+' ('+(q.c||'')+')');return 'Code affiché · '+(q.n||[]).join(', ')}
 async function deblocage(q){if(DEMO)throw new Error('Pas de déverrouillage en démo.');
   let raw;try{raw=await ouvrirBrut(q.p)}catch(e){throw new Error('Ce carnet a été chiffré pour un autre appareil prof (restaure ta sauvegarde).')}
   const txt=await STQR.encoder({a:'SPE',v:1,t:'U',i:q.i,k:b64s(raw)});
@@ -269,7 +277,7 @@ function vClasses(){
     <div class="row wrap"><label style="flex:1 1 320px">Lien d’envoi en ligne (Nuage, « Demande de fichier ») — jamais visible par les élèves<input type="url" class="in cl-lien" style="max-width:none" data-cl="${esc(c)}" value="${esc(L.lien)}" placeholder="https://nuage03.apps.education.fr/s/…"></label></div>
     <div class="row wrap"><button class="btn pri" data-act="qrdem" data-v="${esc(c)}">QR de démarrage</button><button class="btn" data-act="codecours" data-v="${esc(c)}">🔑 Code du cours</button><button class="btn sm ghost" data-act="clsuppr" data-v="${esc(c)}">Retirer la liste</button></div>
     <details><summary class="small">Voir la liste</summary><ol class="small">${L.eleves.map(n=>{const e=P.eleves[cleEleve(c,n)]||{};return `<li>${esc(n)}${e.sexe||e.age?` <span class="muted">· ${e.sexe==='F'?'fille':e.sexe==='G'?'garçon':''}${e.age?' · '+esc(e.age)+' ans':''}</span>`:''}</li>`}).join('')}</ol></details></section>`}).join('')+`<p class="small muted">Le QR contient la liste (avec sexe et âge s’ils sont connus), le lien et ta clé de copie de secours. Si tu changes la liste ou le lien, les groupes rescannent le nouveau QR (Groupe → Nouvelle liste de classe).</p>`:''}
-<section class="card"><h3>🔑 Un groupe a oublié son code</h3><ol class="small"><li>Le groupe touche « Code oublié ? » : un QR s’affiche.</li><li>Ici : <b>Recevoir → Scanner les QR codes</b> → ce QR. Ton écran affiche un QR de déverrouillage.</li><li>Le groupe le scanne et choisit un nouveau code (à noter). Rien n’est perdu.</li></ol><p class="small muted">Tablette qui n’avait jamais scanné le QR de démarrage : nouveau groupe, puis <b>Élèves</b> → fiche → « QR de reprise » pour chaque élève.</p></section>
+<section class="card"><h3>🔑 Un groupe a oublié son code</h3><ol class="small"><li>Le groupe touche « Code oublié ? » : un QR s’affiche.</li><li>Ici : <b>Recevoir → Scanner les QR codes</b> → ce QR (sur la tablette, en photo ou imprimé). <b>Le code s’affiche en grand</b> : dites-le au groupe.</li><li>Carnet ancien, pas rouvert depuis la mise à jour : un QR de déverrouillage s’affiche à la place ; le groupe le scanne et choisit un nouveau code. Rien n’est perdu.</li></ol><p class="small muted">Tablette qui n’avait jamais scanné le QR de démarrage : nouveau groupe, puis <b>Élèves</b> → fiche → « QR de reprise » pour chaque élève.</p></section>
   <section class="card"><h3>Fin d’année</h3><p class="small muted">Télécharge une sauvegarde complète, puis vide l’outil pour la rentrée suivante.</p><button class="btn sm ghost" data-act="archiver">Archiver l’année et repartir à zéro</button></section>
   <p class="ver">Step · outil prof ${APP_VERSION} · lien de démonstration pour un collègue : <b>${esc(location.origin+location.pathname)}?demo</b></p>`;
 }

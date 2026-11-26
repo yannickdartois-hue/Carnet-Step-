@@ -65,14 +65,18 @@ const nouvelleCle=()=>crypto.subtle.generateKey({name:'AES-GCM',length:256},true
 const importerCle=raw=>crypto.subtle.importKey('raw',raw,{name:'AES-GCM'},true,['encrypt','decrypt']);
 async function envelopper(dk,kek){const iv=crypto.getRandomValues(new Uint8Array(12));return {iv:b64(iv),d:b64(await crypto.subtle.encrypt({name:'AES-GCM',iv},kek,await crypto.subtle.exportKey('raw',dk)))}}
 async function deballer(w,kek){return importerCle(await crypto.subtle.decrypt({name:'AES-GCM',iv:deb64(w.iv)},kek,deb64(w.d)))}
-async function pourProf(dk,k){
+/* v1.14 (comme demi-fond v4.2 et la gym) : n'importe quels octets chiffrés pour la clé du professeur ;
+   sert à la clé du carnet ET au code du groupe → « code oublié » en un seul scan, le prof lit le code */
+async function pourProf(dk,k){return pourProfOctets(new Uint8Array(await crypto.subtle.exportKey('raw',dk)),k)}
+async function pourProfOctets(oct,k){
   const pub=await crypto.subtle.importKey('raw',deb64(k.replace(/-/g,'+').replace(/_/g,'/')),{name:'ECDH',namedCurve:'P-256'},false,[]);
   const eph=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveKey']);
   const cle=await crypto.subtle.deriveKey({name:'ECDH',public:pub},eph.privateKey,{name:'AES-GCM',length:256},false,['encrypt']);
   const iv=crypto.getRandomValues(new Uint8Array(12));
-  return {epk:b64(await crypto.subtle.exportKey('raw',eph.publicKey)),iv:b64(iv),data:b64(await crypto.subtle.encrypt({name:'AES-GCM',iv},cle,await crypto.subtle.exportKey('raw',dk)))}}
+  return {epk:b64(await crypto.subtle.exportKey('raw',eph.publicKey)),iv:b64(iv),data:b64(await crypto.subtle.encrypt({name:'AES-GCM',iv},cle,oct))}}
+let CODEMEM='';   /* code du groupe ouvert, gardé en mémoire le temps de la session (jamais écrit en clair) */
 async function lireCarnet(g,dk){return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:deb64(g.iv)},dk,deb64(g.data))))}
-async function poserCode(g,code,dk){const sel=crypto.getRandomValues(new Uint8Array(16));g.sel=b64(sel);g.wk=await envelopper(dk,await deriver(code,sel))}
+async function poserCode(g,code,dk){CODEMEM=String(code);delete g.ck;delete g.ckk;const sel=crypto.getRandomValues(new Uint8Array(16));g.sel=b64(sel);g.wk=await envelopper(dk,await deriver(code,sel))}
 let tSauve=null;
 function save(){if(DEMO)return;clearTimeout(tSauve);tSauve=setTimeout(enregistrer,250)}
 async function enregistrer(){
@@ -83,6 +87,7 @@ async function enregistrer(){
   const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},CLEF,new TextEncoder().encode(JSON.stringify(G)));
   Object.assign(g,{classe:G.classe,cy:G.cy,noms:G.runners.map(r=>r.prenom),iv:b64(iv),data:b64(ct),vu:Date.now(),nonEnv:nonEnvoyees().map(s=>s.n)});delete g.clair;
   const k=G.cfg&&G.cfg.k;if(k&&g.pkk!==k){try{g.pk=await pourProf(CLEF,k);g.pkk=k}catch(e){}}
+  if(k&&CODEMEM&&g.ckk!==k){try{g.ck=await pourProfOctets(new TextEncoder().encode(CODEMEM),k);g.ckk=k}catch(e){}}
   ecrireRoot();
 }
 function vide(classe,cy){return {id:uid(),classe:classe||'',cy:cy||'S',runners:[],sent:{},mod:{},dates:{},envoi:{},jours:{},cfg:null}}
@@ -94,7 +99,7 @@ function attacher(g){
 async function ouvrir(id,code){
   const g=ROOT.groupes[id];
   if(g.clair){const dk=await nouvelleCle();await poserCode(g,code,dk);CLEF=dk;attacher(Object.assign(vide(),g.clair))}
-  else if(g.wk){let dk;try{dk=await deballer(g.wk,await deriver(code,deb64(g.sel)))}catch(e){throw new Error('Code faux.')}CLEF=dk;attacher(await lireCarnet(g,dk))}
+  else if(g.wk){let dk;try{dk=await deballer(g.wk,await deriver(code,deb64(g.sel)))}catch(e){throw new Error('Code faux.')}CLEF=dk;CODEMEM=String(code);attacher(await lireCarnet(g,dk))}
   else{/* carnet v1 : chiffré directement avec le code ; il passe en v2 à l'ouverture */
     const k=await deriver(code,deb64(g.sel));let o;try{o=await lireCarnet(g,k)}catch(e){throw new Error('Code faux.')}
     const dk=await nouvelleCle();await poserCode(g,code,dk);CLEF=dk;attacher(o)}
@@ -108,6 +113,11 @@ async function nouveauGroupe(classe,cy,code){
 async function demandeDeblocage(id){const g=ROOT.groupes[id];
   if(!g.pk)return modal(`<h2>Code oublié</h2><p>Ce carnet n’a pas encore reçu la clé du professeur (pas de QR de classe scanné) : il ne peut pas être rouvert sans le code.</p><p class="small">Supprimez-le et créez un nouveau groupe. Le professeur vous donnera un <b>QR de reprise</b> par élève (toutes les séances qu’il a reçues) : Groupe → « Scanner le QR de l’élève ».</p>
       <div class="row wrap" style="justify-content:space-between"><button class="btn" data-act="closem">Annuler</button><button class="btn danger" data-act="suppridoublie" data-v="${id}">Supprimer ce carnet</button></div>`);
+  if(g.ck){const t1=await STQR.encoder({a:'SPE',v:1,t:'Q',c:g.classe,n:g.noms||[],p:g.ck});
+    modal(`<h2>Code oublié · ${(g.noms||[]).map(esc).join(' · ')}</h2><p>Montre ce QR au professeur : il le scanne et <b>te dit ton code</b>.</p><div class="qr" id="rqr"></div>
+      <div class="row wrap" style="justify-content:space-between"><button class="btn" data-act="closem">Fermer</button><button class="btn pri" data-act="choisir" data-v="${id}">J’ai mon code</button></div>`);
+    return qrAnime([t1])}
+  /* carnet qui n'a pas encore son code chiffré pour le prof (code pas retapé depuis la mise à jour) : ancienne procédure */
   const txt=await STQR.encoder({a:'SPE',v:1,t:'K',c:g.classe,n:g.noms||[],i:id,p:g.pk});
   modal(`<h2>Code oublié · ${(g.noms||[]).map(esc).join(' · ')}</h2><p class="muted small">1. Montre ce QR au professeur (outil prof → Recevoir → Scanner). 2. Il affiche un QR de déverrouillage : scanne-le, puis choisissez un nouveau code.</p>
     <div class="qr" id="rqr"></div><div class="row wrap" style="justify-content:space-between"><button class="btn" data-act="closem">Annuler</button><button class="btn pri" data-act="deblscan" data-v="${id}">Scanner la réponse du prof</button></div>`);
@@ -120,7 +130,7 @@ function recevoirDeblocage(id,o){
     catch(e){toast('Déverrouillage impossible : '+(e.message||e))}},500);
   return 'Carnet déverrouillé.';
 }
-async function verrouiller(){await enregistrer();G=null;ACTIF=null;CLEF=null;DB.binomes=[];V={tab:'seance'};if(DEMO){DEMO=false;quitterDemoUrl()}}
+async function verrouiller(){await enregistrer();CODEMEM='';G=null;ACTIF=null;CLEF=null;DB.binomes=[];V={tab:'seance'};if(DEMO){DEMO=false;quitterDemoUrl()}}
 /* La séance s'ouvre toute seule : celle déjà remplie aujourd'hui, sinon la suivante de la dernière remplie un autre jour. */
 function seanceDuJour(){
   const L=sessOf(G.cy),t=today();
