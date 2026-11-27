@@ -15,7 +15,7 @@ window.EPS_AIDE={appli:'Carnet step · Outil prof',bouton:false,pied:'Toutes les
 <li>Installez l’outil sur l’écran d’accueil de l’iPad (Safari → Partager → « Sur l’écran d’accueil ») et faites une <b>sauvegarde</b> après chaque import.</li></ol>`},
 {t:'Les onglets : avant, pendant, après la séance',html:`<ul>
 <li><b>Avant</b> — Classes : listes, lien du Nuage, QR de démarrage, archivage de fin d’année.</li>
-<li><b>Pendant</b> — Appel (statut auto, corrigeable), Recevoir (scanner les QR, importer les fichiers), Chrono des filières (bips et voix sur enceinte).</li>
+<li><b>Pendant</b> — Appel : 4 statuts par élève — <b>P</b> présent, <b>A</b> absent, <b>I</b> inapte, <b>IP</b> inapte partiel — et précisions (retard, oubli de tenue, absence justifiée, oubli d’envoi). Pointillés = statut proposé d’après ce qui est reçu ; le toucher le confirme, le re-toucher l’enlève. Daté au 1er appel, historique gardé. « 🙂 Bilan de fin de cours » : appréciation facultative (☹ 🙁 🙂 😃), ni note ni évaluation. Recevoir (scanner les QR, importer les fichiers ; « Encore N élèves à scanner » s’affiche, absents non comptés), Chrono des filières (bips et voix sur enceinte).</li>
 <li><b>Après</b> — Séance (la classe sur une séance, ★ et contrôle prof), Élèves (tableau du cycle, fiches), Défis, Note, Pilotage, Exporter.</li></ul>`},
 {t:'Recevoir les séances',html:`<ul>
 <li><b>QR</b> : <span class="bouton">Scanner les QR codes</span>, puis montrez les QR un par un (un par binôme). Un bip = séance rangée. Les QR de l’ancien carnet sont acceptés.</li>
