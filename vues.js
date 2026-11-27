@@ -94,7 +94,7 @@ function sessView(){
   const blocs=s.blocks.map(bk).filter(B=>phaseOf(B)===ph);
   if(ph==='fin')return head+phases+`<section class="card thin">${AV_BILAN[s.id]?'<p class="qbilan">'+esc(AV_BILAN[s.id])+'</p>':''}<p class="small"><b>Après le retour au calme, 5 minutes :</b> chacun remplit son bilan, puis le binôme envoie la séance.</p></section>
   ${stepsBar(s,d)}${blocs.map(B=>stepWrap(withHelp(blockView(B,s,run,d),B[0],B,s),B,s,d)).join('')}
-  ${stepWrap(withHelp(bilanView(s,run,d,t,n),'bilan',[],s),['bilan'],s,d)}`+qrBtn;
+  ${stepWrap(withHelp(bilanView(s,run,d,t,n),'bilan',[],s),['bilan'],s,d)}${barreTour(true)}`+qrBtn;
   return head+phases+`<div class="coachline ${co.need?'warn':''}"><span>Coach : <b>${co.n?esc(co.n):'à choisir'}</b>${co.rep?` <span class="tag">remplaçant · ${esc(WHY_TXT[co.why]||'')}</span>`:''}</span>
    <button class="btn sm danger" data-act="chcoach">⚠ ${co.rep?'Modifier le coach':'Changer de coach (exceptionnel)'}</button></div>
   ${co.need?'<p class="warn small center">Ton coach habituel est absent : choisis un coach remplaçant avant de commencer.</p>':''}
@@ -102,7 +102,7 @@ function sessView(){
   ${repCard(s,run,d)}
   ${stepsBar(s,d)}
   ${blocs.map(B=>stepWrap(withHelp(blockView(B,s,run,d),B[0],B,s),B,s,d)).join('')}
-  <button class="btn big full" data-ph="fin">Fin de séance : bilan et envoi →</button>`;
+  ${barreTour(true)}<button class="btn big full" data-ph="fin">Fin de séance : bilan et envoi →</button>`;
 }
 /* ---------- séance découpée en étapes ---------- */
 const RESULT=['afl1'];
@@ -122,6 +122,7 @@ function stepsBar(s,d){const L=stepList(s);const n=L.filter(B=>stepDone(B,d)).le
    <p><b>${n} / ${L.length}</b> étapes remplies${n===L.length&&L.length?(V.ph==='fin'?' : envoie la séance au prof':' : à la fin, passe au bilan'):''} <button class="lnk small" data-act="onetog">${one?'Tout afficher':'Une étape à la fois'}</button></p></nav>`}
 function stepWrap(html,B,s,d){if(RESULT.includes(B[0]))return html;const L=stepList(s);const i=L.findIndex(x=>x===B||(x[0]===B[0]&&x[1]===B[1]));if(i<0)return html;const ok=stepDone(B,d);
   let h=html.replace('<section class="card','<section id="st-'+i+'" class="step '+(ok?'done ':'')+'card').replace('<h3>','<h3><span class="stepn">'+(ok?'✓':i+1)+'</span>');
+  {const k3=h.indexOf('</h3>');if(k3>=0)h=h.slice(0,k3+5)+barreTour()+h.slice(k3+5)}
   if(oneMode()){if(i!==V.cur)return h.replace('<section ','<section hidden ');const k=h.lastIndexOf('</section>');
     h=h.slice(0,k)+`<div class="stepnav">${i>0?`<button class="btn" data-cur="${i-1}">‹ Étape ${i}</button>`:'<span></span>'}${i<L.length-1?`<button class="btn pri" data-cur="${i+1}">Étape ${i+2} ›</button>`:''}</div>`+h.slice(k)}
   return h}
@@ -140,6 +141,15 @@ const txt=(path,d,ph)=>`<textarea class="in" data-p="${path}" rows="2" placehold
 const segv=(path,d,opts)=>{const v=getPath(d,path);return `<div class="seg">${opts.map(o=>`<button class="chip ${String(v)===String(o[0])?'on':''}" data-set="${path}" data-v="${o[0]}">${o[1]}</button>`).join('')}</div>`};
 const out=(lab,val,cls)=>`<div class="out ${cls||''}"><span>${lab}</span><b>${val}</b></div>`;
 const okb=ok=>ok==null?'':ok?'<span class="ok">✓ tenu</span>':'<span class="ko">✗</span>';
+/* v1.17 : saisies à tour de rôle (règle commune des applis en binôme) : « Passer aux saisies de … » sur chaque étape,
+   et report des coches d'échauffement au partenaire en une touche. */
+function iSuiv(){const b=curBin();if(!b||b.runners.length<2)return -1;const ri=V.ri||0,n=b.runners.length;
+  for(let k=1;k<n;k++){const i=(ri+k)%n,p=b.runners[i],pd=p.seances&&p.seances[V.sid];if(!(pd&&pd.st==='abs'))return i}return -1}
+function barreTour(bas){const i=iSuiv();if(i<0)return '';const b=curBin(),ri=V.ri||0;
+  return `<div class="tour mini t${'abc'[ri]||'a'}${bas?' bas':''}"><span>✏️ Saisies de <b>${esc(b.runners[ri].prenom)}</b></span><button type="button" class="tour-sw" data-tourn="${i}">Passer aux saisies de ${esc(b.runners[i].prenom)} ▶</button></div>`}
+function repCoches(wc){const i=iSuiv();if(i<0||!wc.length)return '';const b=curBin(),p=b.runners[i],dd=sd(p,V.sid),pw=dd.wc||[];
+  if(wc.every(x=>pw.includes(x)))return `<p class="small rep-ok">✓ ${esc(p.prenom)} a les mêmes coches que toi.</p>`;
+  return `<button type="button" class="btn pri full rep-bt" data-act="repEch" data-v="${i}">📋 Reporter mes ${wc.length} coche${wc.length>1?'s':''} à ${esc(p.prenom)}</button><p class="small muted">Une seule touche si ${esc(p.prenom)} a fait le même échauffement. Il pourra encore décocher.</p>`}
 const who=w=>`<span class="who">${w==='C'?'⏱ coach pendant':w==='R'?'✎ pratiquant':'⏱ coach · ✎ pratiquant'}</span>`;
 const sbOpt=o=>esc(JSON.stringify({mn:o.min,mx:o.max,s0:o.start}));
 /* nombre : − [case] + ; la case reste modifiable au clavier */
@@ -198,7 +208,7 @@ function blockView(b,s,run,d){
   if(ty==='warm'){const wc=d.wc||[];const nb=[].concat(...WARM_EX).filter(x=>wc.includes(x[0])).length;
     return `<section class="card"><h3>Mon échauffement ${who('C')}</h3><p class="muted small">${s.eval?'Seul, sans fiche : le coach coche ce que tu fais.':'Le coach coche ce que tu fais.'}</p>
      ${WARM_EX.map((L,p)=>`<p class="small"><b>${['Phase 1 · au sol','Phase 2 · sur le step','Phase 3 · les 3 blocs en version basse','Phase 4 · ma filière'][p]}</b></p><div class="seg wc">${L.map(x=>`<button class="chip sm ${wc.includes(x[0])?'on':''}" data-tog="wc" data-v="${x[0]}">${x[1]}</button>`).join('')}</div>`).join('')}
-     <div class="outs">${out('Critères',nb+' / 9 '+(nb>=7?'✓ prêt':nb>=5?'· refais la phase manquante':''),'hi')}</div></section>`}
+     <div class="outs">${out('Critères',nb+' / 9 '+(nb>=7?'✓ prêt':nb>=5?'· refais la phase manquante':''),'hi')}</div>${repCoches(wc)}</section>`}
   if(ty==='perso')return `<section class="card"><h3>Ma version personnelle des blocs ${who('R')}</h3>${f?`<p class="small">Filière ${esc(FIL[f].nom)} : ${FIL[f].prio} d’abord.</p>`:'<p class="warn small">Choisis d’abord ta filière (S4).</p>'}
      ${[1,2,3].map(i=>`${curRow('ps.b'+i,d,'Bloc '+i)}<label class="small">Pas remplacés (2 au plus) <input class="in" data-p="ps.b${i}.r" value="${esc(getPath(d,'ps.b'+i+'.r')||'')}" placeholder="ex. talons à la place de genou G"></label>`).join('')}</section>`;
   if(ty==='regl'){const zz=zoneFor(run,f);const f1=num(getPath(d,'rg.1.fc')),f2=num(getPath(d,'rg.2.fc'));const h1=hors(f1,zz);

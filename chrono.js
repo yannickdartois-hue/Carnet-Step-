@@ -14,7 +14,7 @@ function chronoView(){chRestore();const r=CH.run;const F=['eval','s5','s6','s4']
   <div class="row wrap center">${r?`<button class="btn big" data-act="chpause">${r.paused?'▶ Reprendre':'Ⅱ Pause'}</button><button class="btn big ghost" data-act="chstop">■ Arrêter</button>`:`<button class="btn pri huge" data-act="chgo">▶ Lancer (départ dans 5 s)</button>`}</div></section>`}
 function chDraw(){const r=CH.run;const t=r?r.t:0;const el=$('#chtot');if(!el)return;el.textContent=r&&r.pre>0?'Départ dans '+Math.ceil(r.pre):fmS(t);
   ['A','B'].forEach(k=>{const S=segsF(k,CH.fmt),end=S[S.length-1].b;const cur=S.find(s=>t>=s.a&&t<s.b);const box=$('#ch'+k);if(!box)return;
-    box.classList.toggle('rec',!!cur&&cur.type==='R');
+    box.classList.toggle('rec',!!cur&&cur.type==='R');box.classList.toggle('eff',!!cur&&cur.type==='E'&&!(r&&r.pre>0));
     box.innerHTML=`<span class="chk">${FIL[k].nom}</span>${!r||r.pre>0?'<b>Prêt</b>':!cur?(t>=end?'<b>Terminé</b>':'<b>Prêt</b>'):`<small>${cur.type==='E'?'EFFORT '+cur.n+' / '+FMT[CH.fmt][k].e.length:'RÉCUPÉRATION ACTIVE'}</small><b>${fmS(cur.b-t)}</b>`}`});
   const fcOn=r&&r.pre<=0&&mPoints(CH.fmt).some(p=>t>=p&&t<p+15);const f=$('#chfc');if(f)f.hidden=!fcOn}
 /* Chrono calé sur l'heure réelle : juste après une mise en veille, et repris après un rechargement (en rouvrant l'onglet Chrono). */

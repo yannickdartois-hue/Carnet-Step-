@@ -356,7 +356,7 @@ header button.bseance .pt{position:absolute;right:-4px;top:-4px;width:14px;heigh
 .chgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
 @media (max-width:560px){.chgrid{grid-template-columns:1fr}}
 .chf{border-radius:16px;padding:14px;color:#fff;text-align:center;transition:filter .3s}
-.chf.fA{background:#dc2626}.chf.fB{background:#0891b2}.chf.rec{filter:saturate(.25) brightness(.9)}
+/* règle commune des chronos : effort VERT, récupération ROUGE, prêt/terminé bleu nuit ; la filière reste écrite en haut */.chf{background:#12222b}.chf.eff{background:#15803d}.chf.rec{background:#b91c1c}
 .chf .chk{display:block;font-size:max(14px,var(--fs-min,15px));opacity:.92;font-weight:700}.chf small{display:block;font-weight:800;letter-spacing:.5px}
 .chf b{font-size:clamp(44px,12vw,84px);font-variant-numeric:tabular-nums;line-height:1.05;display:block}
 .chfc{margin:8px 0;background:var(--warn);color:#fff;font-weight:800;font-size:30px;border-radius:12px;padding:10px;text-align:center;animation:bl 1s infinite}
@@ -375,3 +375,9 @@ header button.bseance .pt{position:absolute;right:-4px;top:-4px;width:14px;heigh
 
 /* v1.12 · sélecteur de séance « piste » : sur petit téléphone, la flèche ▾ s'efface pour laisser lire le nom de l'appli */
 @media (max-width:400px){header button.bseance{padding-left:8px;padding-right:8px}header button.bseance .eps-se-txt span{display:none}}
+/* v1.17 : « Passer aux saisies de … » (règle commune des applis en binôme, modèle demi-fond élève) : une couleur par élève */
+.tour{border-radius:14px;padding:8px 10px;color:#fff;margin:6px 0 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.tour.bas{margin:14px 0}.tour.ta{background:#1d4ed8}.tour.tb{background:#c2410c}.tour.tc{background:#15803d}
+.tour>span{font-size:16px}.tour b{font-size:17px}
+.tour-sw{background:#fff;color:#14181f;border:0;border-radius:12px;min-height:48px;padding:0 14px;font:inherit;font-weight:800;font-size:16px;cursor:pointer;flex:1 1 auto;max-width:100%}
+.rep-bt{margin-top:12px;min-height:56px}.rep-ok{margin-top:10px;color:#15803d;font-weight:800}

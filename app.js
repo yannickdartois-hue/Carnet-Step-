@@ -396,6 +396,9 @@ document.addEventListener('click',async e=>{
   if(ds.tab){V.tab=ds.tab;if(ds.tab==='seance'){V.cur=V.cur||0}render();return window.scrollTo(0,0)}
   if(ds.sess){closeModal();V.sid=ds.sess;V.tab='seance';V.ri=0;V.cur=0;V.ph='piste';V.presOpen=false;G.jours[today()]=V.sid;save();render();return window.scrollTo(0,0)}
   if(ds.ri)return keepScroll(()=>{V.ri=+ds.ri;V.cur=0;render()});
+  /* v1.17 : « Passer aux saisies de … » : même étape, même phase, l'écran se place sur les étapes */
+  if(ds.tourn!==undefined&&V.tab==='seance'){V.ri=+ds.tourn;render();const st=$('.steps');if(st)window.scrollTo(0,Math.max(0,st.getBoundingClientRect().top+window.scrollY-70));
+    return toast('✏️ Saisies de '+curBin().runners[V.ri].prenom)}
   if(ds.ph){V.ph=ds.ph;V.cur=0;V.tab='seance';render();return window.scrollTo(0,0)}
   if(ds.sx){t.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));t.classList.add('on');return}
   /* saisie de séance (repris du carnet v12) */
@@ -448,6 +451,8 @@ document.addEventListener('click',async e=>{
       Object.entries(sx).forEach(([id,v])=>{const z=document.getElementById(id);if(!z)return;z.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.v===v))});return}
     case 'qrclasse':if(DEMO)return toast('Pas disponible en démo.');return scannerQR(recevoirClasse,'QR de la classe','Scanne le QR affiché par le professeur.');
     case 'tpartir':if(DEMO)return toast('Pas disponible en démo.');return montrerTransfert(+v);
+    case 'repEch':{const i=+v,b=curBin(),p=b.runners[i];if(!p||i===(V.ri||0))return;const src=curD().wc||[],dd=sd(p,V.sid),av=(dd.wc||[]).length;dd.wc=[...new Set((dd.wc||[]).concat(src))];
+      if(p.imp)delete p.imp[V.sid];b.mod=b.mod||{};b.mod[V.sid]=Date.now();save();const n=dd.wc.length-av;keepScroll(render);return toast('✓ '+n+' coche'+(n>1?'s':'')+' reportée'+(n>1?'s':'')+' à '+p.prenom)}
     case 'tretirer':{const r=G.runners[+v];G.runners.splice(+v,1);V.ri=0;closeModal();save();render();return toast((r?r.prenom:'L’élève')+' est retiré du groupe.')}
     case 'tarrive':if(DEMO)return toast('Pas disponible en démo.');return scannerQR(accueillir,'Élève qui arrive','Scanne le QR affiché par son ancien groupe, ou le QR de reprise du professeur.');
     case 'sauvegarde':if(DEMO)return toast('Pas disponible en démo.');await enregistrer();return telecharger('Carnet_Step_'+(slug(G.classe)||'groupe')+'_'+G.runners.map(r=>slug(r.prenom)).join('-')+'_'+today()+'.json',JSON.stringify((()=>{const g=Object.assign({},ROOT.groupes[ACTIF]);delete g.essais;delete g.clair;return Object.assign({carnetSTc:1,id:ACTIF},g)})()));
