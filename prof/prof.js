@@ -48,8 +48,18 @@ function ajouterSeance(r){
   e.seances[r.seance]=r.d||{};e.recu[r.seance]={ts:r.ts||0,src:r.src,date:r.date||''};
   if(r.groupe&&r.groupe.length)e.groupe[r.seance]=r.groupe;if(r.coach)e.coach[r.seance]={n:r.coach,rep:!!r.coachRemplacant};
   if(!P.classesL[r.classe])P.classesL[r.classe]={eleves:[],lien:'',cy:'S'};
+  SCX={c:r.classe,s:r.seance};
   return [k,old?'mis à jour':'nouveau'];
 }
+let SCX=null;   /* classe et séance du dernier QR lu (pour « Encore N élèves à scanner ») */
+/* v. « Encore N élèves à scanner » affiché dans le scanner, sous le nom des élèves lus (règle commune des outils prof).
+   manque : noms des élèves de la classe sans séance reçue (hors absents notés à l'appel) ; lib : « classe · séance ». */
+function resteBloc(manque,total,lib,nAbs){if(!total)return '';const s=manque.length>1?'s':'',ab=nAbs?` · ${nAbs} absent${nAbs>1?'s':''} non compté${nAbs>1?'s':''}`:'';
+  return manque.length?`<div class="scan-reste" style="background:#fff7ed;border:2px solid #fb923c;border-radius:12px;padding:8px 10px;color:#14181f;text-align:left"><b style="font-size:20px">Encore ${manque.length} élève${s} à scanner</b> <span style="font-size:14px">· ${esc(lib)}${ab}</span><div style="font-size:15px;margin-top:4px;line-height:1.35">${manque.map(esc).join(', ')}</div></div>`
+    :`<div class="scan-reste ok" style="background:#dcfce7;border:2px solid #22c55e;border-radius:12px;padding:8px 10px;color:#14532d;text-align:left"><b style="font-size:20px">✓ Toute la classe est scannée</b> <span style="font-size:14px">· ${esc(lib)}${ab}</span></div>`}
+function resteScan(){const x=SCX||{c:P.classe,s:P.classe?seanceCourante(clsCy(P.classe)):''};if(!x.c||!SBY[x.s])return '';
+  const K=eleves(x.c),abs=K.filter(k=>['absent','abj'].includes(P.appel[nk(x.c)+'|'+x.s+'|'+k])),m=K.filter(k=>!abs.includes(k)&&!(P.eleves[k]&&P.eleves[k].recu&&P.eleves[k].recu[x.s]));
+  return resteBloc(m.map(nomAff),K.length,x.c+' · '+SBY[x.s].n,abs.length)}
 function importerObjet(o){
   if(o&&o.carnetST)throw new Error('C’est la sauvegarde d’une tablette (« Reprendre un carnet » côté élève), pas un fichier de séance.');
   if(!o||o.app!=='step-eleves')throw new Error('fichier non reconnu');
@@ -510,8 +520,8 @@ document.addEventListener('click',async ev=>{
     case 'sug':{const [f,x]=v.split('|');P.eleves[k][f]=String(x).replace('.',',');sauver();const y=window.scrollY;rendre();window.scrollTo(0,y);return}
     case 'sexe':P.eleves[k].sexe=v;break;
     case 'age':P.eleves[k].age=+v;break;
-    case 'scanner':{let n0=0;STQR.scanner(async t=>{const r=await lireTexteQR(t);if(!String(r).startsWith('…')){n0++;sauver();beep()}return String(r).startsWith('…')?r:'✓ '+r},
-      {continu:true,titre:'QR codes des élèves',aide:'Montre les QR un par un devant la caméra.',onClose:()=>{if(n0)journal(n0+' QR code'+(n0>1?'s':'')+' scanné'+(n0>1?'s':''));classeParDefaut();sauver();rendre();if(n0)proposerSauvegarde()}});return}
+    case 'scanner':{let n0=0;SCX=null;STQR.scanner(async t=>{const r=await lireTexteQR(t);if(!String(r).startsWith('…')){n0++;sauver();beep()}return String(r).startsWith('…')?r:'✓ '+r},
+      {continu:true,titre:'QR codes des élèves',aide:'Montre les QR un par un devant la caméra.',reste:resteScan,onClose:()=>{if(n0)journal(n0+' QR code'+(n0>1?'s':'')+' scanné'+(n0>1?'s':''));classeParDefaut();sauver();rendre();if(n0)proposerSauvegarde()}});return}
     case 'secours':return telechargerSecours(v);
     case 'migrer':return migrerProf();
     case 'sauvegarde':return sauvegarder();
